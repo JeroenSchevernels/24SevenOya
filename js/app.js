@@ -148,7 +148,7 @@ $(document).ready(function() {
 		                    let string = ""
 							
 							if (msg.data.callerId.name != "<unknown>" || msg.data.callerId.number != "<unknown>") {
-								string += support.get(msg.data.userId) + ": " + info.Name + " (" + msg.data.callerId.number + ")"
+								string += support.get(msg.data.userId) + ": " + info.Name + " " + msg.data.callerId.number
 							}
 							
 							if (string!="")	 {                    
