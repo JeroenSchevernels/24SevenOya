@@ -23,6 +23,8 @@ call = [
 
 ];
 
+CurrentUser;
+
 function statusUpdate(id, state){
 	if (support.has(id)) {
 		if (state =='UNAVAILABLE'){
@@ -82,7 +84,7 @@ $(document).ready(function() {
 		});
 		
 		Oyatel.User.currentUser(function(user) {
-			console.log(user);
+			CurrentUser = user;
 			$('#user').html(user.username + ' (' + user.firstname + ' ' + user.lastname + ')');
 		});
 			
