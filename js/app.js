@@ -23,7 +23,7 @@ call = [
 
 ];
 
-CurrentUser;
+let CurrentUser;
 
 function statusUpdate(id, state){
 	if (support.has(id)) {
