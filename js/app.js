@@ -136,11 +136,11 @@ $(document).ready(function() {
                             if (data.matches[0].address != null) info.Address = data.matches[0].address;
                             if (data.matches[0].zipcode != null) info.Zipcode = data.matches[0].zipcode;
 							if (data.matches[0].city != null) info.City = data.matches[0].city;
-							if(msg.data.userId == CurrentUser.id){
-								call.push(info);
-							}
+							
 						}
-						
+						if (msg.data.userId == CurrentUser.id) {
+							call.push(info);
+						}
                         if (data.location != null) info.Country = data.location;
                         if (msg.data.event == 'ring') {
 	                        $('#cnNumber').html(msg.data.callerId.number);
