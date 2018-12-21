@@ -127,7 +127,8 @@ $(document).ready(function() {
 	                            'Address': '',
 	                            'Zipcode': '',
 	                            'City': '',
-	                            'Country': ''
+								'Country': '',
+								'Number': ''
 	                        };
 	                Oyatel.Call.numberInfo(msg.data.callerId.number, function(data) {
 						console.log(data);
@@ -139,6 +140,7 @@ $(document).ready(function() {
 							
 						}
 						if (msg.data.userId == CurrentUser.id) {
+							info.Number = msg.data.callerId.number;
 							call.push(info);
 						}
                         if (data.location != null) info.Country = data.location;
