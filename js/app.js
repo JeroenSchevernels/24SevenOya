@@ -147,7 +147,7 @@ $(document).ready(function() {
 		                else if (msg.data.event == 'hangup') {
 		                    let string = ""
 							
-							if (info.Name != "" || msg.data.callerId.number != ""){
+							if (info.Name != "<unknown>" || msg.data.callerId.number != "<unknown>") {
 								string += support.get(msg.data.userId) + ": " + info.Name + " (" + msg.data.callerId.number + ")"
 							}
 							
