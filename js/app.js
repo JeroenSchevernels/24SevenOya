@@ -146,12 +146,11 @@ $(document).ready(function() {
 		                }
 		                else if (msg.data.event == 'hangup') {
 		                    let string = ""
-		                    if (info.Name != ""){
+							
+							if (info.Name != "" || msg.data.callerId.number != ""){
 								string += support.get(msg.data.userId) + ": " + info.Name + " (" + msg.data.callerId.number + ")"
-		                    }
-		                    else if(msg.data.callerId.number != ""){
-								string += support.get(msg.data.userId) + ": " + msg.data.callerId.number
 							}
+							
 							if (string!="")	 {                    
 								$('#calls').append("<span class='log'>" + string + "</span>&nbsp;");
 							}
