@@ -82,6 +82,7 @@ $(document).ready(function() {
 		});
 		
 		Oyatel.User.currentUser(function(user) {
+			console.log(user);
 			$('#user').html(user.username + ' (' + user.firstname + ' ' + user.lastname + ')');
 		});
 			
