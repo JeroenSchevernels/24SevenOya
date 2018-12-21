@@ -117,6 +117,7 @@
   		margin: 2px;
   		border:1px solid #aaa;
 		border-radius: 1px;
+		display: inline-block;
 	}
 
 	#calls {

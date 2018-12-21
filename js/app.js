@@ -127,6 +127,7 @@ $(document).ready(function() {
 	                            'Country': ''
 	                        };
 	                Oyatel.Call.numberInfo(msg.data.callerId.number, function(data) {
+						console.log("Data numberinfo: " + data);
                         if (data.matches.length > 0) {
                             if (data.matches[0].name != null) info.Name = data.matches[0].name;
                             if (data.matches[0].address != null) info.Address = data.matches[0].address;
@@ -144,14 +145,16 @@ $(document).ready(function() {
 	                        $('#cnCountry').html(info.Country);    
 		                }
 		                else if (msg.data.event == 'hangup') {
-		                    let string = support.get(msg.data.userId) +": "
+		                    let string = ""
 		                    if (info.Name != ""){
-		                    	string += info.Name + " (" + msg.data.callerId.number + ")"
+								string += support.get(msg.data.userId) + ": " + info.Name + " (" + msg.data.callerId.number + ")"
 		                    }
 		                    else {
-		                    	string += msg.data.callerId.number
-		                    }	                     
-		                    $('#calls').append("<span class='log'>" + string + "</span>&nbsp;");
+								string += support.get(msg.data.userId) + ": " + msg.data.callerId.number
+							}
+							if (string!="")	 {                    
+								$('#calls').append("<span class='log'>" + string + "</span>&nbsp;");
+							}
 		                }
 		                else {
 		                	console.log('other status!!!');
