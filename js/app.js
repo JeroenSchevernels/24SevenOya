@@ -127,7 +127,7 @@ $(document).ready(function() {
 	                            'Country': ''
 	                        };
 	                Oyatel.Call.numberInfo(msg.data.callerId.number, function(data) {
-						console.log("Data numberinfo: " + data);
+						console.log(data);
                         if (data.matches.length > 0) {
                             if (data.matches[0].name != null) info.Name = data.matches[0].name;
                             if (data.matches[0].address != null) info.Address = data.matches[0].address;
