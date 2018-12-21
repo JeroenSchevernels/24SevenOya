@@ -149,7 +149,7 @@ $(document).ready(function() {
 		                    if (info.Name != ""){
 								string += support.get(msg.data.userId) + ": " + info.Name + " (" + msg.data.callerId.number + ")"
 		                    }
-		                    else {
+		                    else if(msg.data.callerId.number != ""){
 								string += support.get(msg.data.userId) + ": " + msg.data.callerId.number
 							}
 							if (string!="")	 {                    
