@@ -23,6 +23,7 @@ call = [
 
 ];
 
+
 let CurrentUser;
 
 function statusUpdate(id, state){
@@ -71,7 +72,7 @@ $(document).ready(function() {
 		$('.not-authorized').css('display', 'none');
 			
 		Oyatel.Events.subscribe('/events/presence', function(msg) {
-
+			
 			if (msg.data.event == "fulldump") {
 				for (let event in msg.data.events) {
 					statusUpdate(msg.data.events[event].userId, msg.data.events[event].state);
@@ -79,6 +80,9 @@ $(document).ready(function() {
 			}
 			else
 			{
+				// console.log('presence: ');
+				// console.log(msg);
+				
 				statusUpdate(msg.data.userId, msg.data.state);
 			}
 		});
@@ -117,7 +121,8 @@ $(document).ready(function() {
 				
 		Oyatel.Events.subscribe('/events/call', function(msg) {
 			if (support.has(msg.data.userId)) {
-				console.log(msg.data);
+				// console.log('call: ');
+				// console.log(msg.data);
 	            if (msg.data.direction === "out") {
 	                $('#calls').append("<p>SOMEONE CALLED OUT! IS THIS SHIT FINALLY WORKING?</p>");
 	            } 
@@ -131,7 +136,8 @@ $(document).ready(function() {
 								'Number': ''
 	                        };
 	                Oyatel.Call.numberInfo(msg.data.callerId.number, function(data) {
-						console.log(data);
+						// console.log('numberinfo: ');
+						// console.log(data);
                         if (data.matches.length > 0) {
                             if (data.matches[0].name != null) info.Name = data.matches[0].name;
                             if (data.matches[0].address != null) info.Address = data.matches[0].address;
