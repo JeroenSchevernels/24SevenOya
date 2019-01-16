@@ -1,33 +1,36 @@
-const support = new Map();
-//IE11 doesn't support Map(iterable), so setting it like this...
-support.set(21102,"Adam");
-support.set(3215 ,"Alexander");
-support.set(2944 ,"Andreas");
-support.set(20714,"Eirik");
-support.set(16517,"Fredrik");
-support.set(20321,"Guro");
-support.set(19608,"Hanne");
-support.set(3208 ,"Henrik");
-support.set(2947 ,"Iselin");
-support.set(21101,"Jeroen");
-support.set(5546 ,"Joakim ");
-support.set(2943 ,"Kjerstin");
-support.set(21100,"Konrad");
-support.set(16518,"Petter");
-support.set(2945 ,"Silje");
-support.set(4958 ,"Sonja");
-support.set(3184 ,"Terje");
-support.set(17333,"Truls");
+class Support {
+	constructor(name) {
+	  this.name = name;
+	} 
+}
 
-call = [
+const support = new Map(); //IE11 doesn't support Map(iterable), so setting it like this...
+support.set(21102, new Support("Adam"));
+support.set(3215 , new Support("Alexander"));
+support.set(2944 , new Support("Andreas"));
+support.set(20714, new Support("Eirik"));
+support.set(16517, new Support("Fredrik"));
+support.set(20321, new Support("Guro"));
+support.set(19608, new Support("Hanne"));
+support.set(3208 , new Support("Henrik"));
+support.set(2947 , new Support("Iselin"));
+support.set(21101, new Support("Jeroen"));
+support.set(5546 , new Support("Joakim"));
+support.set(2943 , new Support("Kjerstin"));
+support.set(21100, new Support("Konrad"));
+support.set(16518, new Support("Petter"));
+support.set(2945 , new Support("Silje"));
+support.set(4958 , new Support("Sonja"));
+support.set(3184 , new Support("Terje"));
+support.set(17333, new Support("Truls"));
 
-];
-
+call = [];
 
 let CurrentUser;
 
-function statusUpdate(id, state){
+function statusUpdate(id, state,msg){
 	if (support.has(id)) {
+		console.log(msg);
 		if (state =='UNAVAILABLE'){
 			if($("#" + id).length != 0) {
 				$('#s' + id).remove;
@@ -36,7 +39,7 @@ function statusUpdate(id, state){
 		else {
 			if($("#" + id).length == 0) {
 				//it doesn't exist yet
-				$('#support').append("<span id='" + id + "' class='label OTHER'>" + support.get(id) + "</span>");
+				$('#support').append("<span id='" + id + "' class='label OTHER'>" + support.get(id).name + "</span>");
 			}
 			else
 			{ 	//update existing
@@ -50,7 +53,12 @@ function statusUpdate(id, state){
 };
 
 $(document).ready(function() {
-
+	$("#copy").click(function() {
+		const el = document.querySelector('#copyTxt'); 
+		el.select();
+		document.execCommand('copy');
+	});
+	
 	Oyatel.init('5C974191-C1BA-4A46-AA3C-047A86202E7E', 'https://jeroenschevernels.netlify.com/oauth_cb.html');
 	
 	Oyatel.bind('authorized', function() {
@@ -75,15 +83,12 @@ $(document).ready(function() {
 			
 			if (msg.data.event == "fulldump") {
 				for (let event in msg.data.events) {
-					statusUpdate(msg.data.events[event].userId, msg.data.events[event].state);
+					statusUpdate(msg.data.events[event].userId, msg.data.events[event].state,msg);
 				}
 			}
 			else
-			{
-				// console.log('presence: ');
-				// console.log(msg);
-				
-				statusUpdate(msg.data.userId, msg.data.state);
+			{			
+				statusUpdate(msg.data.userId, msg.data.state,msg);
 			}
 		});
 		
@@ -121,8 +126,8 @@ $(document).ready(function() {
 				
 		Oyatel.Events.subscribe('/events/call', function(msg) {
 			if (support.has(msg.data.userId)) {
-				// console.log('call: ');
-				// console.log(msg.data);
+				console.log('call: ');
+				console.log(msg.data);
 	            if (msg.data.direction === "out") {
 	                $('#calls').append("<p>SOMEONE CALLED OUT! IS THIS SHIT FINALLY WORKING?</p>");
 	            } 
@@ -136,8 +141,8 @@ $(document).ready(function() {
 								'Number': ''
 	                        };
 	                Oyatel.Call.numberInfo(msg.data.callerId.number, function(data) {
-						// console.log('numberinfo: ');
-						// console.log(data);
+						console.log('numberinfo: ');
+						console.log(data);
                         if (data.matches.length > 0) {
                             if (data.matches[0].name != null) info.Name = data.matches[0].name;
                             if (data.matches[0].address != null) info.Address = data.matches[0].address;
@@ -155,13 +160,14 @@ $(document).ready(function() {
 	                        $('#cnName').html(info.Name);
 	                        $('#cnAddress').html(info.Address);
 	                        $('#cnZipCity').html(info.Zipcode + " " + info.City);
-	                        $('#cnCountry').html(info.Country);    
+							$('#cnCountry').html(info.Country);
+							$('#copyTxt').text('Samtale logg ' + msg.data.callerId.number + ' ' + info.Name);    
 		                }
 		                else if (msg.data.event == 'hangup') {
 		                    let string = ""
 							
 							if (msg.data.callerId.name != "<unknown>" || msg.data.callerId.number != "<unknown>") {
-								string += support.get(msg.data.userId) + ": " + info.Name + " " + msg.data.callerId.number
+								string += support.get(msg.data.userId).name + ": " + info.Name + " " + msg.data.callerId.number
 							}
 							
 							if (string!="")	 {                    
@@ -190,5 +196,5 @@ $(document).ready(function() {
 	});
 	$('.oyatel-logout').click(function() {
 		Oyatel.deauthorize();
-	});	
+	});
 });
