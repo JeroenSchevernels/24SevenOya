@@ -28,9 +28,9 @@ call = [];
 
 let CurrentUser;
 
-function statusUpdate(id, state,msg){
+function statusUpdate(id, state){
 	if (support.has(id)) {
-		console.log(msg);
+		// console.log(msg);
 		if (state =='UNAVAILABLE'){
 			if($("#" + id).length != 0) {
 				$('#s' + id).remove;
@@ -51,6 +51,21 @@ function statusUpdate(id, state,msg){
 		}	
 	}
 };
+
+function updateCall(){
+	$('#call').html('');
+	for (let i = 0; i < call.length; i++){
+		$('#call').append("<div><strong>" + ts2time(call[i].timestamp) + "</strong> " + call[i].name + " <small>(" + call[i].number + ")</small></div>");
+	}
+}
+
+function ts2time(number){
+	let timestamp = new Date(number);
+	let hours = timestamp.getHours();
+	let minutes = "0" + timestamp.getMinutes();
+	// let seconds = "0" + timestamp.getSeconds();
+	return hours + ':' + minutes.substr(-2); //+ ':' + seconds.substr(-2);
+}
 
 $(document).ready(function() {
 	$("#copy").click(function() {
@@ -83,12 +98,13 @@ $(document).ready(function() {
 			
 			if (msg.data.event == "fulldump") {
 				for (let event in msg.data.events) {
-					statusUpdate(msg.data.events[event].userId, msg.data.events[event].state,msg);
+					statusUpdate(msg.data.events[event].userId, msg.data.events[event].state);
 				}
 			}
 			else
 			{			
-				statusUpdate(msg.data.userId, msg.data.state,msg);
+				statusUpdate(msg.data.userId, msg.data.state);
+				console.log("___" +  msg.data.state + " " + support.get(msg.data.userId).name);
 			}
 		});
 		
@@ -126,8 +142,8 @@ $(document).ready(function() {
 				
 		Oyatel.Events.subscribe('/events/call', function(msg) {
 			if (support.has(msg.data.userId)) {
-				console.log('call: ');
-				console.log(msg.data);
+				// console.log('call event: ');
+				// console.log(msg.data);
 	            if (msg.data.direction === "out") {
 	                $('#calls').append("<p>SOMEONE CALLED OUT! IS THIS SHIT FINALLY WORKING?</p>");
 	            } 
@@ -141,8 +157,8 @@ $(document).ready(function() {
 								'Number': ''
 	                        };
 	                Oyatel.Call.numberInfo(msg.data.callerId.number, function(data) {
-						console.log('numberinfo: ');
-						console.log(data);
+						// console.log('numberinfo: ');
+						// console.log(data);
                         if (data.matches.length > 0) {
                             if (data.matches[0].name != null) info.Name = data.matches[0].name;
                             if (data.matches[0].address != null) info.Address = data.matches[0].address;
@@ -152,26 +168,42 @@ $(document).ready(function() {
 						}
 						if (msg.data.userId == CurrentUser.id) {
 							info.Number = msg.data.callerId.number;
-							call.push(info);
 						}
                         if (data.location != null) info.Country = data.location;
-                        if (msg.data.event == 'ring') {
+						if (msg.data.event == 'ring') {  // doesn't look like it. det ser ut som når de trykker på rød, at det kommer også her
 	                        $('#cnNumber').html(msg.data.callerId.number);
 	                        $('#cnName').html(info.Name);
 	                        $('#cnAddress').html(info.Address);
 	                        $('#cnZipCity').html(info.Zipcode + " " + info.City);
 							$('#cnCountry').html(info.Country);
-							$('#copyTxt').text('Samtale logg ' + msg.data.callerId.number + ' ' + info.Name);    
+							$('#copyTxt').text('Samtale logg ' + msg.data.callerId.number + ' ' + info.Name);
+							if (call.length > 0){
+								if (call[call.length - 1].number === msg.data.callerId.number){
+									if (new Date().getTime() - call[call.length - 1].timestamp < 60000){ //less than a minute since last, so we assume same call
+										call[call.length - 1].timestamp = new Date().getTime();
+									} else {
+										call.push({number: msg.data.callerId.number, name: info.Name, timestamp: new Date().getTime()});
+									}
+								} else {
+									call.push({number: msg.data.callerId.number, name: info.Name, timestamp: new Date().getTime()});
+								}
+							} else {
+								call.push({number: msg.data.callerId.number, name: info.Name, timestamp: new Date().getTime()});
+							}
+							updateCall();	
 		                }
 		                else if (msg.data.event == 'hangup') {
+							console.log("hangup " + support.get(msg.data.userId).name);
 		                    let string = ""
 							
 							if (msg.data.callerId.name != "<unknown>" || msg.data.callerId.number != "<unknown>") {
-								string += support.get(msg.data.userId).name + ": " + info.Name + " " + msg.data.callerId.number
+								string += "<strong>" + ts2time(new Date().getTime()) + "</strong> ";
+								string += support.get(msg.data.userId).name + ":<small> " + info.Name + ' ' +  msg.data.callerId.number + "</small>";
+								
 							}
 							
 							if (string!="")	 {                    
-								$('#calls').append("<span class='log'>" + string + "</span>&nbsp;");
+								$('#calls').append("<div class='log'>" + string + "</div>");
 							}
 		                }
 		                else {
