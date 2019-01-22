@@ -53,9 +53,9 @@ function statusUpdate(id, state){
 };
 
 function updateCall(){
-	$('#call').html('');
+	$('#log').html('');
 	for (let i = 0; i < call.length; i++){
-		$('#call').append("<div><strong>" + ts2time(call[i].timestamp) + "</strong> " + call[i].name + " <small>(" + call[i].number + ")</small></div>");
+		$('#log').append("<tr><td>" + ts2time(call[i].timestamp) + "</td><td>" + call[i].name + "</td><td>" + call[i].number + "</td></tr>");
 	}
 }
 
@@ -137,6 +137,7 @@ $(document).ready(function() {
 				}
 				$(".agentsBox").css("background","RGBA(255,0,0," + (agentsBusy / agentsOnline) + ")");
 				$(".queueBox").css("background","RGBA(255,0,0," + (callsWaiting * 0.20) + ")");
+				document.title = 'Wait: ' + callsWaiting + ' Busy: ' + agentsBusy + '/' + agentsOnline;
 			}
 		});
 				
@@ -145,7 +146,7 @@ $(document).ready(function() {
 				// console.log('call event: ');
 				// console.log(msg.data);
 	            if (msg.data.direction === "out") {
-	                $('#calls').append("<p>SOMEONE CALLED OUT! IS THIS SHIT FINALLY WORKING?</p>");
+	                alert("<p>SOMEONE CALLED OUT! IS THIS SHIT FINALLY WORKING?</p>");
 	            } 
 	            if (msg.data.direction === 'in') {
 	            	var info = {
@@ -170,7 +171,7 @@ $(document).ready(function() {
 							info.Number = msg.data.callerId.number;
 						}
                         if (data.location != null) info.Country = data.location;
-						if (msg.data.event == 'ring') {  // doesn't look like it. det ser ut som når de trykker på rød, at det kommer også her
+						if (msg.data.event == 'ring') {
 	                        $('#cnNumber').html(msg.data.callerId.number);
 	                        $('#cnName').html(info.Name);
 	                        $('#cnAddress').html(info.Address);
