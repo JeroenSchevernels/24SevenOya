@@ -1,6 +1,8 @@
 class Support {
 	constructor(name) {
 	  this.name = name;
+	  this.status = 'unknown';
+	  this.calls = 0;
 	} 
 }
 
@@ -30,7 +32,18 @@ let CurrentUser;
 
 function statusUpdate(id, state){
 	if (support.has(id)) {
-		// console.log(msg);
+		if (state != support.get(id).status){
+			let previous = support.get(id).status;
+			support.get(id).status = state;
+
+			if ((previous === 'RINGING') && (support.get(id).status === 'BUSY')) {
+				support.get(id).calls += 1;
+				console.log(support.get(id).name + ' is on the phone: ' + support.get(id).calls);
+				// check which call is in waiting, then check afterwards if same call
+			}		
+		}
+
+		// VISUAL PART WITH TAGS IN AGENTS BOX
 		if (state =='UNAVAILABLE'){
 			if($("#" + id).length != 0) {
 				$('#s' + id).remove;
@@ -39,7 +52,7 @@ function statusUpdate(id, state){
 		else {
 			if($("#" + id).length == 0) {
 				//it doesn't exist yet
-				$('#support').append("<span id='" + id + "' class='label OTHER'>" + support.get(id).name + "</span>");
+				$('#support').append("<span id='" + id + "' class='label OTHER'>" + support.get(id).name +"</span>");
 			}
 			else
 			{ 	//update existing
@@ -88,9 +101,8 @@ $(document).ready(function() {
 	});
 	Oyatel.checkAuthorization();
 
-
 	function authorized() {
-		
+	
 		$('.authorized').css('display', 'block');
 		$('.not-authorized').css('display', 'none');
 			
@@ -104,7 +116,6 @@ $(document).ready(function() {
 			else
 			{			
 				statusUpdate(msg.data.userId, msg.data.state);
-				console.log("___" +  msg.data.state + " " + support.get(msg.data.userId).name);
 			}
 		});
 		
@@ -194,22 +205,10 @@ $(document).ready(function() {
 							updateCall();	
 		                }
 		                else if (msg.data.event == 'hangup') {
-							console.log("hangup " + support.get(msg.data.userId).name);
-		                    let string = ""
-							
-							if (msg.data.callerId.name != "<unknown>" || msg.data.callerId.number != "<unknown>") {
-								string += "<strong>" + ts2time(new Date().getTime()) + "</strong> ";
-								string += support.get(msg.data.userId).name + ":<small> " + info.Name + ' ' +  msg.data.callerId.number + "</small>";
-								
-							}
-							
-							if (string!="")	 {                    
-								$('#calls').append("<div class='log'>" + string + "</div>");
-							}
+							// console.log("hangup " + support.get(msg.data.userId).name);
 		                }
 		                else {
-		                	console.log('other status!!!');
-		                	console.log(msg.data);
+		                	alert('other status: ' + msg.data);
 		                }
                     });
 	                
