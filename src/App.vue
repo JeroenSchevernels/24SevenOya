@@ -1,94 +1,139 @@
 <template>
 	<div id="app">
 		<title>{{documentTitle}}</title>
-
-		<button v-if="!authorized" @click="login">login</button>
-		<button v-if="authorized" @click="logout">logout</button>
-
+		<v-toolbar dark>
+			<v-toolbar-title>24SOya</v-toolbar-title>
+			<v-spacer></v-spacer>
+			<v-toolbar-items>
+				<v-btn flat v-if="!authorized" @click="login">Login with Oyatel</v-btn>
+				<v-btn flat v-if="authorized" @click="logout">Logout ({{currentUser.username}})</v-btn>
+			</v-toolbar-items>
+		</v-toolbar>	
 		<div v-if="authorized">
-			<div class="row">
-				<span class="right">
-					{{currentUser.username}}
-				</span>
-			</div>
-			<br />
-			<div class="grid-container">
-				<div class="box callsBox">
-					<p>
-						<span class="box-caption">Calls today:</span><br />
-						<span class="left">
-							<span class="box-value" id="completed">{{callsCompleted}}</span> completed
-						</span>
-						<span class="right">
-							<span class="box-value" id="abandoned">{{callsAbandoned}}</span> abandoned
-						</span>
-					</p>
-				</div>
-				<div class="box agentsBox">
-					<p>
-						<span class="box-caption">Support on phone:</span><br />
-						<span class="left">
-							<span class="box-value" id="agentsBusy">{{agentsBusy}}</span> busy
-						</span>
-						<span class="right">
-							<span class="box-value" id="agentsOnline">{{agentsOnline}}</span> online
-						</span>
-					</p>
-					<div id="support"></div>
-				</div>
-				<div class="box queueBox">
-					<p>
-						<span class="box-caption">Waiting:</span><br />
-						<span class="box-value" id="waiting">{{callsWaiting}}</span>
-					</p>
-				</div>
-				<div class="box infoBox">
-					<!-- <button id="copy"><i class="far fa-clipboard"></i> Copy</button> -->
-					<button id="copy">Copy</button>
-					<span class="box-caption">Caller info:</span><br />
-					<h2><span id="cnNumber">{{caller.number}}</span>
-						<span id="cnName">{{caller.name}}</span></h2>
-					<span id="cnAddress">{{caller.address}}</span><br />
-					<span id="cnZipCity">{{caller.zipcode}}</span><br />
-					<span id="cnCountry">{{caller.contry}}</span>
-					<textarea id="copyTxt"></textarea>
-				</div>
-				<div class="box logBox">
-					<table id="log"></table>
-				</div>
-			</div>
+			<v-container fluid grid-list-md>
+				<v-layout row wrap style="height: 88vh">
+					<v-flex d-flex xs12 sm7>
+						<v-layout column wrap>
+							<v-flex d-flex>
+								<v-card elevation-1 v-bind:style="{ 'background-image': callsBoxGradient}">
+									<v-card-text class="text-xs-center headline">Calls today</v-card-text>
+									<v-layout row>
+										<v-card-text class="text-xs-left"><span class="display-3">{{callsCompleted}} </span>completed</v-card-text>
+										<v-card-text class="text-xs-right"><span class="display-3">{{callsAbandoned}} </span>abandoned</v-card-text>
+									</v-layout>
+								</v-card>
+							</v-flex>
+							<v-flex d-flex>
+								<v-layout row wrap>
+									<v-flex d-flex xs12 sm4>
+										<v-card elevation-1 v-bind:style="{ backgroundColor: queueBoxColor}">
+											<v-card-text class="text-xs-center headline">Waiting</v-card-text>
+											<v-card-text class="text-xs-center display-3">{{callsWaiting}}</v-card-text>
+										</v-card>
+									</v-flex>
+									<v-flex d-flex xs12 sm8>
+										<v-card elevation-1>
+											<v-card-text class="text-xs-center headline">
+												Caller info
+											</v-card-text>
+											<h2>
+												<span id="cnNumber">{{caller.number}}</span>
+												<span id="cnName">{{caller.name}}</span>
+											</h2>
+											<span id="cnAddress">{{caller.address}}</span><br />
+											<span id="cnZipCity">{{caller.zipcode}}</span><br />
+											<span id="cnCountry">{{caller.contry}}</span><br />
+											<v-card-actions>
+												<v-btn v-clipboard="() => copyField(caller)">Copy</v-btn>
+											</v-card-actions>
+										</v-card>
+									</v-flex>
+								</v-layout>
+							</v-flex>
+							<v-flex d-flex>
+								<v-card elevation-1 v-bind:style="{ backgroundColor: agentsBoxColor}">
+									<v-card-text class="text-xs-center headline">Support on phone</v-card-text>
+									<v-layout row>
+										<v-card-text class="text-xs-left"><span class="display-3">{{agentsBusy}} </span>busy</v-card-text>
+										<v-card-text class="text-xs-right"><span class="display-3">{{agentsOnline}} </span>online</v-card-text>
+									</v-layout>
+									<v-layout align-end justify-center row>
+										<v-chip v-for="agent in supportOnline" :key="agent.id" v-bind:class="agent.status">
+											<v-avatar v-if="agent.avatar != ''">
+												<img :src="agent.avatar">
+											</v-avatar>
+											{{ agent.name }} : {{ agent.calls }}
+										</v-chip>
+									</v-layout>
+								</v-card>
+							</v-flex>
+						</v-layout>
+					</v-flex>
+					<v-flex d-flex xs12 sm5>
+						<v-card elevation-1 style="overflow-y: scroll">
+							<v-card-title style="position: fixed">
+								<v-text-field
+									v-model="search"
+									append-icon="search"
+									label="Search"
+									single-line
+									hide-details
+								></v-text-field>
+							</v-card-title>
+							<v-data-table 
+								:headers="headers"
+								:items="call"
+								:search="search"
+								hide-actions
+								style="margin-top: 100px"
+								class="fixed-header"
+								> <!-- class fixed header is commented out in css -->
+								<template slot="items" slot-scope="props">
+									<tr @click="props.expanded = !props.expanded">
+										<td>{{props.item.time}}</td>
+										<td>{{props.item.number}}</td>
+										<td>{{props.item.name}}</td>
+										<td>{{props.item.answered}}</td>
+									</tr>
+								</template>
+								<v-alert slot="no-results" :value="true" color="error" icon="warning">
+									Your search for "{{ search }}" found no results.
+								</v-alert>
+							</v-data-table>
+						</v-card>
+					</v-flex>
+				</v-layout>
+			</v-container>
 		</div>
 	</div>
 </template>
 
 <script>
-	class Support {
-		constructor(name) {
-			this.name = name;
-			this.status = 'unknown';
-			this.calls = 0;
+
+	class Call {
+		constructor(call) {   
+			this.number = call.number
+			this.name = call.name
+		}
+
+		answered(event){
+			// set user and 
+		}
+
+		hangup(event){
+			// set duration and update status
 		}
 	}
 
-	const support = new Map(); //IE11 doesn't support Map(iterable), so setting it like this...
-	support.set(21102, new Support("Adam"));
-	support.set(3215, new Support("Alexander"));
-	support.set(2944, new Support("Andreas"));
-	support.set(20714, new Support("Eirik"));
-	support.set(16517, new Support("Fredrik"));
-	support.set(20321, new Support("Guro"));
-	support.set(19608, new Support("Hanne"));
-	support.set(3208, new Support("Henrik"));
-	support.set(2947, new Support("Iselin"));
-	support.set(21101, new Support("Jeroen"));
-	support.set(5546, new Support("Joakim"));
-	support.set(2943, new Support("Kjerstin"));
-	support.set(21100, new Support("Konrad"));
-	support.set(16518, new Support("Petter"));
-	support.set(2945, new Support("Silje"));
-	support.set(4958, new Support("Sonja"));
-	support.set(3184, new Support("Terje"));
-	support.set(17333, new Support("Truls"));
+	class Support {
+		constructor(id,name,avatar="") {
+			this.id = id;
+			this.name = name;
+			this.status = 'UNAVAILABLE';
+			this.calls = 0;
+			this.avatar = avatar;
+		}
+	}
 
 	export default {
 		name: 'app',
@@ -98,80 +143,91 @@
 		data() {
 			return {
 				documentTitle: '24Soya',
-				message: 'avaible',
 				authorized: true,
-				access_token: '',
 				currentUser: {},
-				users: [],
 				calls: 0,
 				abandoned: 0,
-				caller: {
-					name: '-',
-					number: '-',
-					address: '-',
-					city: '-',
-					zipcode: '-',
-					country: '-'
+				caller: {			
+					name: '',
+					number: '',
+					address: '',
+					city: '',
+					zipcode: '',
+					country: ''
 				},
+				callid: [],
 				log: [],
+				agentsBusy: '',
+				agentsOnline: '',
+				callsAbandoned: '',
+				callsCompleted: '',
+				callsWaiting: '',
 				call: [],
-				agentsBusy: '-',
-				agentsOnline: '-',
-				callsAbandoned: '-',
-				callsCompleted: '-',
-				callsWaiting: '-'
-
+				calls:[], // for class
+				expand: true,
+				search: '',
+				headers: [
+					{text: 'Time', value: 'time'},
+					{text: 'Number', value: 'number'},
+					{text: 'Name', value: 'name'},
+					{text:'Answered by', value: 'answered'}
+				],
+				support:[]
 			}
 		},
 		methods: {
+			supportCheckId(id) {
+			var self = this
+			var found = self.support.some(function (el) {
+				return el.id == id;
+			});
+			return found;
+			},
+
 			statusUpdate(id, state) {
-				if (support.has(id)) {
-					if (state != support.get(id).status) {
-						let previous = support.get(id).status;
-						support.get(id).status = state;
+				var self = this
+				if (self.supportCheckId(id)){
+					let index = self.support.findIndex(x => x.id==id);
+					if (state != self.support[index].status) {
+						let previous = self.support[index].status;
+						self.support[index].status = state;
 
-						if ((previous === 'RINGING') && (support.get(id).status === 'BUSY')) {
-							support.get(id).calls += 1;
-							console.log(support.get(id).name + ' is on the phone: ' + support.get(id).calls);
+						if ((previous === 'RINGING') && (self.support[index].status === 'BUSY')) {
+							self.support[index].calls += 1;
+							console.log(self.support[index].name + ' is on the phone: ' + self.support[index].calls);
 							// check which call is in waiting, then check afterwards if same call
-						}
-					}
-
-					// VISUAL PART WITH TAGS IN AGENTS BOX
-					if (state == 'UNAVAILABLE') {
-						if ($("#" + id).length != 0) {
-							$('#s' + id).remove;
-						}
-					} else {
-						if ($("#" + id).length == 0) {
-							//it doesn't exist yet
-							$('#support').append("<span id='" + id + "' class='label OTHER'>" + support.get(id).name + "</span>");
-						} else { //update existing
-							if (!$('#' + id).hasClass(state)) { //else ignore
-								$('#' + id).removeClass("BUSY AVAILABLE OTHER RINGING");
-								$('#' + id).addClass(state);
-							}
 						}
 					}
 				}
 			},
-			updateCall() {
-				var self = this
-				$('#log').html('');
-				for (let i = 0; i < self.call.length; i++) {
-					$('#log').append("<tr><td>" + self.ts2time(self.call[i].timestamp) + "</td><td>" + self.call[i].name + "</td><td>" + self.call[i].number +
-						"</td></tr>");
-				}
+			copyField(caller){
+				console.log(JSON.stringify(caller))
+				return "Samtale logg " + caller.name + " " + caller.number + "!" 
 			},
 			ts2time(number) {
 				let timestamp = new Date(number);
 				let hours = timestamp.getHours();
 				let minutes = "0" + timestamp.getMinutes();
 				// let seconds = "0" + timestamp.getSeconds();
-				return hours + ':' + minutes.substr(-2); //+ ':' + seconds.substr(-2);
+				return hours + ':' + minutes.substr(-2) //+ ':' + seconds.substr(-2);
 			},
 			deauthorized() {
 				this.authorized = false
+			},
+			pushCall(call){
+				var self = this
+				self.call.push(call)				
+			},
+			callExist(caller){ 
+				var self = this 
+				
+				for (let c in self.callid){
+					if(caller.id == self.callid[c]){
+						//console.log(caller.id + ' ' + self.callid[c])
+						return true					
+					}
+				}		
+				return false						
 			},
 			authorize() {
 				var self = this
@@ -192,35 +248,32 @@
 				});
 
 				Oyatel.Events.subscribe('/events/queue', function (msg) {
-
 					if (msg.data.queueId == "que0110312") { //Filter on Support NO queue only!
 						self.agentsBusy = msg.data.agentsBusy;
 						self.agentsOnline = msg.data.agentsOnline;
 						self.callsAbandoned = msg.data.callsAbandoned;
 						self.callsCompleted = msg.data.callsCompleted;
 						self.callsWaiting = msg.data.callsWaiting;
-
-						let percentage = Math.round(self.callsCompleted / (self.callsCompleted + self.callsAbandoned) * 100);
-						if (percentage > 99) {
-							$(".callsBox").css("background", "#a2f282");
-						} else if (percentage < 1) {
-							$(".callsBox").css("background", "#ef5d4c");
-						} else {
-							$(".callsBox").css("background-image", "linear-gradient(to right, #a2f282 " + (percentage - 5) + "% ," +
-								percentage + "% ,#ef5d4c " + (percentage + 5) + "% )");
-						}
-						$(".agentsBox").css("background", "RGBA(255,0,0," + (self.agentsBusy / self.agentsOnline) + ")")
-						$(".queueBox").css("background", "RGBA(255,0,0," + (self.callsWaiting * 0.20) + ")")
 						self.documentTitle = 'Wait: ' + self.callsWaiting + ' Busy: ' + self.agentsBusy + '/' + self.agentsOnline
 					}
 				})
 
 				Oyatel.Events.subscribe('/events/call', function (msg) {
-					if (support.has(msg.data.userId)) {
+					self.log.push(msg.data)
+					let bool = true
+					if(self.callExist(msg.data)){
+						//console.log(msg.data.id)
+						bool = false
+					}else{
+						self.callid.push(msg.data.id)
+					}
+
+					if (self.supportCheckId(msg.data.userId) && bool) {
 						if (msg.data.direction === "out") {
 							alert("<p>SOMEONE CALLED OUT! IS THIS SHIT FINALLY WORKING?</p>");
 						}
 						if (msg.data.direction === 'in') {
+							self.calls.push(new Call(msg.data.callerId))
 							var info = {
 								'Name': '',
 								'Address': '',
@@ -247,32 +300,38 @@
 									$('#cnZipCity').html(info.Zipcode + " " + info.City);
 									$('#cnCountry').html(info.Country);
 									$('#copyTxt').text('Samtale logg ' + msg.data.callerId.number + ' ' + info.Name);
+									
 									if (self.call.length > 0) {
 										if (self.call[self.call.length - 1].number === msg.data.callerId.number) {
+											
 											if (new Date().getTime() - self.call[self.call.length - 1].timestamp < 60000) { //less than a minute since last, so we assume same call
-												self.call[self.call.length - 1].timestamp = new Date().getTime();
+												self.call[self.call.length - 1].timestamp = new Date().getTime()
+												self.call[self.call.length - 1].time = self.ts2time(new Date().getTime())
 											} else {
 												self.call.push({
 													number: msg.data.callerId.number,
 													name: info.Name,
-													timestamp: new Date().getTime()
+													timestamp: new Date().getTime(),
+													time: self.ts2time(new Date().getTime())
 												});
 											}
 										} else {
 											self.call.push({
 												number: msg.data.callerId.number,
 												name: info.Name,
-												timestamp: new Date().getTime()
+												timestamp: new Date().getTime(),
+												time: self.ts2time(new Date().getTime())
 											});
 										}
 									} else {
 										self.call.push({
 											number: msg.data.callerId.number,
 											name: info.Name,
-											timestamp: new Date().getTime()
+											timestamp: new Date().getTime(),
+											time: self.ts2time(new Date().getTime())
 										});
 									}
-									self.updateCall();
+									//self.updateCall();
 								} else if (msg.data.event == 'hangup') {
 									// hangup
 								} else {
@@ -309,6 +368,48 @@
 		},
 		mounted() {
 			this.init()
+			this.support.push( new Support(21102, "Adam"));
+			this.support.push( new Support(3215, "Alexander"));
+			this.support.push( new Support(2944, "Andreas"));
+			this.support.push( new Support(20714, "Eirik"));
+			// support.push( new Support(16517, "Fredrik"));
+			this.support.push( new Support(20321, "Guro"));
+			this.support.push( new Support(19608, "Hanne"));
+			this.support.push( new Support(3208, "Henrik"));
+			this.support.push( new Support(2947, "Iselin"));
+			this.support.push( new Support(21101, "Jeroen", "./src/img/jss.png"));
+			this.support.push( new Support(5546, "Joakim"));
+			this.support.push( new Support(2943, "Kjerstin"));
+			this.support.push( new Support(21100, "Konrad"));
+			this.support.push( new Support(16518, "Petter", "./src/img/pb.png"));
+			// support.push( new Support(2945, "Silje"));
+			this.support.push( new Support(4958, "Sonja"));
+			this.support.push( new Support(3184, "Terje"));
+			this.support.push( new Support(17333,"Truls"));
+		},
+		computed: {
+			supportOnline: function(){
+				var supportOnline = this.support.filter(agent => agent.status != "UNAVAILABLE");
+				return supportOnline;
+			},
+			agentsBoxColor: function(){				
+				return "RGBA(255,0,0," + (this.agentsBusy / this.agentsOnline) + ")"
+			},
+			queueBoxColor: function(){				
+				return "RGBA(255,0,0," + (this.callsWaiting * 0.20) + ")"
+			},
+			callsBoxGradient: function(){
+				let percentage = Math.round(this.callsCompleted / (this.callsCompleted + this.callsAbandoned) * 100);
+				if (percentage > 99) { //stupid, but gradient expected
+					return "linear-gradient(to right, #a2f282 " + (percentage - 5) + "% ," + percentage + "% ,#a2f282 " + (percentage + 5) + "% )";
+				} else if (percentage < 1) { //stupid, but gradient expected
+					return "linear-gradient(to right, #ef5d4c " + (percentage - 5) + "% ," + percentage + "% ,#ef5d4c " + (percentage + 5) + "% )";
+				} else {
+					return "linear-gradient(to right, #a2f282 " + (percentage - 5) + "% ," + percentage + "% ,#ef5d4c " + (percentage + 5) + "% )";
+				}		
+			}
+
+
 		}
 	}
 </script>

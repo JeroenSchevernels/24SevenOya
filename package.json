@@ -7,7 +7,10 @@
     "build": "npm run clean && webpack --mode production",
     "serve": "webpack-dev-server --mode development"
   },
-  "dependencies": {},
+  "dependencies": {
+    "v-clipboard": "^2.2.1",
+    "vuetify": "^1.4.3"
+  },
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.3.1",
