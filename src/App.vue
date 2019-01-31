@@ -15,8 +15,12 @@
 					<v-flex d-flex xs12 sm7>
 						<v-layout column wrap>
 							<v-flex d-flex>
-								<v-card elevation-1 v-bind:style="{ 'background-image': callsBoxGradient}">
-									<v-card-text class="text-xs-center headline">Calls today</v-card-text>
+								<v-card v-bind:style="{ 'background-image': callsBoxGradient}">
+									<v-toolbar flat>
+										<v-toolbar-title>
+											Calls today
+										</v-toolbar-title>
+									</v-toolbar>
 									<v-layout row>
 										<v-card-text class="text-xs-left"><span class="display-3">{{callsCompleted}} </span>completed</v-card-text>
 										<v-card-text class="text-xs-right"><span class="display-3">{{callsAbandoned}} </span>abandoned</v-card-text>
@@ -26,66 +30,83 @@
 							<v-flex d-flex>
 								<v-layout row wrap>
 									<v-flex d-flex xs12 sm4>
-										<v-card elevation-1 v-bind:style="{ backgroundColor: queueBoxColor}">
-											<v-card-text class="text-xs-center headline">Waiting</v-card-text>
+										<v-card v-bind:style="{ backgroundColor: queueBoxColor}">
+											<v-toolbar flat>
+												<v-toolbar-title>
+													Waiting
+												</v-toolbar-title>
+											</v-toolbar>
 											<v-card-text class="text-xs-center display-3">{{callsWaiting}}</v-card-text>
 										</v-card>
 									</v-flex>
 									<v-flex d-flex xs12 sm8>
-										<v-card elevation-1>
-											<v-card-text class="text-xs-center headline">
-												Caller info
-											</v-card-text>
-											<h2>
-												<span id="cnNumber">{{caller.number}}</span>
-												<span id="cnName">{{caller.name}}</span>
-											</h2>
-											<span id="cnAddress">{{caller.address}}</span><br />
-											<span id="cnZipCity">{{caller.zipcode}}</span><br />
-											<span id="cnCountry">{{caller.contry}}</span><br />
-											<v-card-actions>
-												<v-btn v-clipboard="() => copyField(caller)">Copy</v-btn>
-											</v-card-actions>
+										<v-card>
+											<v-toolbar flat>
+												<v-toolbar-title>
+													Caller info
+												</v-toolbar-title>
+												<v-spacer></v-spacer>
+												<v-btn icon
+													v-clipboard="() => copyField()"
+													v-clipboard:success="clipboardSuccessHandler"
+													v-clipboard:error="clipboardErrorHandler">
+													<v-icon large>assignment</v-icon>
+												</v-btn>
+											</v-toolbar>
+											<v-card-text>
+												<h2>
+													<span>{{caller.number}}</span>
+													<span>{{caller.name}}</span>
+												</h2>
+												<span>{{caller.address}}</span><br />
+												<span>{{caller.zipcode}}</span><br />
+												<span>{{caller.country}}</span><br />
+											</v-card-text>		
 										</v-card>
 									</v-flex>
 								</v-layout>
 							</v-flex>
 							<v-flex d-flex>
-								<v-card elevation-1 v-bind:style="{ backgroundColor: agentsBoxColor}">
-									<v-card-text class="text-xs-center headline">Support on phone</v-card-text>
+								<v-card v-bind:style="{ backgroundColor: agentsBoxColor}">
+									<v-toolbar flat>
+										<v-toolbar-title>Support on phone</v-toolbar-title>
+									</v-toolbar>
 									<v-layout row>
 										<v-card-text class="text-xs-left"><span class="display-3">{{agentsBusy}} </span>busy</v-card-text>
 										<v-card-text class="text-xs-right"><span class="display-3">{{agentsOnline}} </span>online</v-card-text>
 									</v-layout>
 									<v-layout align-end justify-center row>
-										<v-chip v-for="agent in supportOnline" :key="agent.id" v-bind:class="agent.status">
-											<v-avatar v-if="agent.avatar != ''">
-												<img :src="agent.avatar">
-											</v-avatar>
-											{{ agent.name }} : {{ agent.calls }}
-										</v-chip>
+										<v-flex>
+											<v-chip v-for="agent in supportOnline" :key="agent.id" v-bind:class="agent.status">
+												<v-avatar v-if="agent.avatar != ''">
+													<img :src="agent.avatar">
+												</v-avatar>
+												{{ agent.name }} : {{ agent.calls }}
+											</v-chip>
+										</v-flex>
 									</v-layout>
 								</v-card>
 							</v-flex>
 						</v-layout>
 					</v-flex>
 					<v-flex d-flex xs12 sm5>
-						<v-card elevation-1 style="overflow-y: scroll">
-							<v-card-title style="position: fixed">
+						<v-card style="overflow-y: scroll">
+							<v-toolbar flat>
+								<v-toolbar-title>Call log</v-toolbar-title>
+								<v-spacer></v-spacer>
 								<v-text-field
 									v-model="search"
 									append-icon="search"
 									label="Search"
 									single-line
 									hide-details
-								></v-text-field>
-							</v-card-title>
+								></v-text-field>																
+							</v-toolbar>
 							<v-data-table 
 								:headers="headers"
 								:items="call"
 								:search="search"
 								hide-actions
-								style="margin-top: 100px"
 								class="fixed-header"
 								> <!-- class fixed header is commented out in css -->
 								<template slot="items" slot-scope="props">
@@ -200,9 +221,14 @@
 					}
 				}
 			},
-			copyField(caller){
-				console.log(JSON.stringify(caller))
-				return "Samtale logg " + caller.name + " " + caller.number + "!" 
+			copyField(){
+				return 'Samtale logg ' + this.caller.number + ' ' + this.caller.name 
+			},
+			clipboardSuccessHandler ({ value, event }) {
+				console.log('success', value)
+			},
+			clipboardErrorHandler ({ value, event }) {
+				console.log('error', value)
 			},
 			ts2time(number) {
 				let timestamp = new Date(number);
@@ -294,12 +320,19 @@
 								}
 								if (data.location != null) info.Country = data.location;
 								if (msg.data.event == 'ring') {
-									$('#cnNumber').html(msg.data.callerId.number);
-									$('#cnName').html(info.Name);
-									$('#cnAddress').html(info.Address);
-									$('#cnZipCity').html(info.Zipcode + " " + info.City);
-									$('#cnCountry').html(info.Country);
-									$('#copyTxt').text('Samtale logg ' + msg.data.callerId.number + ' ' + info.Name);
+									self.caller.number = msg.data.callerId.number
+									self.caller.name = info.Name
+									self.caller.address = info.Address
+									self.caller.zipcode = info.Zipcode
+									self.caller.country = info.country
+									// we never user the caller object .-.
+									// $('#cnNumber').html(msg.data.callerId.number);
+									// $('#cnName').html(info.Name);
+									// $('#cnAddress').html(info.Address);
+									// $('#cnZipCity').html(info.Zipcode + " " + info.City);
+									// $('#cnCountry').html(info.Country);
+									// $('#copyTxt').text('Samtale logg ' + msg.data.callerId.number + ' ' + info.Name);
+									
 									
 									if (self.call.length > 0) {
 										if (self.call[self.call.length - 1].number === msg.data.callerId.number) {
@@ -369,22 +402,22 @@
 		mounted() {
 			this.init()
 			this.support.push( new Support(21102, "Adam"));
-			this.support.push( new Support(3215, "Alexander"));
-			this.support.push( new Support(2944, "Andreas"));
-			this.support.push( new Support(20714, "Eirik"));
+			this.support.push( new Support(3215, "Alexander", "./src/img/am.png"));
+			this.support.push( new Support(2944, "Andreas", "./src/img/ad.png"));
+			this.support.push( new Support(20714, "Eirik", "./src/img/el.png"));
 			// support.push( new Support(16517, "Fredrik"));
 			this.support.push( new Support(20321, "Guro"));
 			this.support.push( new Support(19608, "Hanne"));
 			this.support.push( new Support(3208, "Henrik"));
 			this.support.push( new Support(2947, "Iselin"));
 			this.support.push( new Support(21101, "Jeroen", "./src/img/jss.png"));
-			this.support.push( new Support(5546, "Joakim"));
+			this.support.push( new Support(5546, "Joakim", "./src/img/jll.png"));
 			this.support.push( new Support(2943, "Kjerstin"));
 			this.support.push( new Support(21100, "Konrad"));
 			this.support.push( new Support(16518, "Petter", "./src/img/pb.png"));
 			// support.push( new Support(2945, "Silje"));
 			this.support.push( new Support(4958, "Sonja"));
-			this.support.push( new Support(3184, "Terje"));
+			this.support.push( new Support(3184, "Terje", "./src/img/tl.png"));
 			this.support.push( new Support(17333,"Truls"));
 		},
 		computed: {
@@ -408,8 +441,6 @@
 					return "linear-gradient(to right, #a2f282 " + (percentage - 5) + "% ," + percentage + "% ,#ef5d4c " + (percentage + 5) + "% )";
 				}		
 			}
-
-
 		}
 	}
 </script>
