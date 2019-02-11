@@ -1,14 +1,5 @@
-	.authorized {
-		display: none;
-	}
-
-	/* #support {
-		position: absolute;
-		bottom: 0px;
-		line-height: 2;
-		margin: 10px;
-	} */
 	#app{
+		background-color: #828282;
 		font-family: Roboto, sans-serif;
 	}
 
@@ -18,20 +9,12 @@
 	}
 
 	.BUSY {
-		background-color: #ef5d4c !important;
+		background-color: #f7796a !important;
 	}
 
 	.OTHER {
 		background-color: #e7e7e7 !important;
 	}
-
-	/* #copyTxt {
-		height: 0px;
-		width: 0px;
-		resize: none;
-		float: right;
-		border: none;
-	} */
 
 	/* .fixed-header table {
 		table-layout: fixed;
