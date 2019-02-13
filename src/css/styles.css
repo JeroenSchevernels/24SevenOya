@@ -1,0 +1,37 @@
+	#app{
+		background-color: #828282;
+		font-family: Roboto, sans-serif;
+	}
+
+	.AVAILABLE,
+	.RINGING {
+		background-color: #a2f282 !important;
+	}
+
+	.BUSY {
+		background-color: #f7796a !important;
+	}
+
+	.OTHER {
+		background-color: #e7e7e7 !important;
+	}
+
+	/* .fixed-header table {
+		table-layout: fixed;
+	}
+	
+	.fixed-header th {
+		background-color: #fff; // just for LIGHT THEME, change it to #474747 for DARK
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+	
+	.fixed-header tr.datatable__progress th {
+		top: 56px;
+	}
+	
+	.fixed-header .table__overflow {
+		overflow: auto;
+		height: 100%;
+	} */
