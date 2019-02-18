@@ -197,8 +197,7 @@
 					city: '',
 					zipcode: '',
 					country: '',
-					id: '',
-					lock: false
+					id: ''
 				},
 				callid: [],
 				nextCallId: 1,
@@ -245,14 +244,17 @@
 						self.support[index].status = state;
 						
 						if ((previous === 'RINGING') && (self.support[index].status === 'BUSY')) {
+							if(self.support[index].callid == ''){
+								console.log("outgoing? " + support[index].name)
+							}
 							self.support[index].calls += 1
-							//self.caller.lock = true
 							for(let c of self.call){
 								if(c.callid == self.support[index].callid){
 									c.status = 'taken'
 									c.answered += self.support[index].name + ' '
 								}
 							}
+							self.support[index].callid = ''
 						}
 					}
 				}
@@ -275,6 +277,18 @@
 			},
 			deauthorized() {
 				this.authorized = false
+			},
+			updateCall(self, info, msg){
+				self.call.push({
+					number: msg.data.callerId.number,
+					name: info.Name,
+					timestamp: new Date().getTime(),
+					time: self.ts2time(new Date().getTime()),
+					callid: self.nextCallId,										
+					status: 'new',
+					queue: msg.data.callerId.name,
+					answered: ''
+				})
 			},
 			pushCall(call){
 				var self = this
@@ -365,14 +379,23 @@
 									info.Number = msg.data.callerId.number;
 								}
 								if (data.location != null) info.Country = data.location;
+
 								if (msg.data.event == 'ring') {
+									// only current users events
+									if (self.currentUser.id == msg.data.userId) {	
+										self.caller.number = msg.data.callerId.number
+										self.caller.name = info.Name
+										self.caller.address = info.Address
+										self.caller.zipcode = info.Zipcode
+										self.caller.city = info.City
+										self.caller.country = info.Country
+									}
+
 									for(let id in self.support){
 										if (self.support[id].status != 'BUSY' && self.support[id].id == msg.data.userId) {
 											self.support[id].callid = self.nextCallId
 										}
 									}
-									self.precallid = msg.data.id	
-
 									if (self.call.length > 0) {
 										if (self.call[self.call.length - 1].number === msg.data.callerId.number) { // check if phone number is the same as the previous one
 											
@@ -383,40 +406,13 @@
 												console.log('same number, but longer than 2 minutes ago');
 												console.log('previous' + self.call[self.call.length - 1].timestamp);
 												console.log('now' + new Date().getTime());
-												self.call.push({
-													number: msg.data.callerId.number,
-													name: info.Name,
-													timestamp: new Date().getTime(),
-													time: self.ts2time(new Date().getTime()),
-													callid: self.nextCallId,										
-													status: 'new',
-													queue: msg.data.callerId.name,
-													answered: ''
-												});
+												self.updateCall(self, info, msg)
 											}
 										} else { //previous number not the same as the current // true
-											self.call.push({
-												number: msg.data.callerId.number,
-												name: info.Name,
-												timestamp: new Date().getTime(),
-												time: self.ts2time(new Date().getTime()),
-												callid: self.nextCallId,										
-												status: 'new',
-												queue: msg.data.callerId.name,
-												answered: ''
-											});
+											self.updateCall(self, info, msg)
 										}
 									} else { //no call in list yet
-										self.call.push({
-											number: msg.data.callerId.number,
-											name: info.Name,
-											timestamp: new Date().getTime(),
-											time: self.ts2time(new Date().getTime()),
-											callid: self.nextCallId,
-											status: 'new',
-											queue: msg.data.callerId.name,
-											answered: ''
-										});
+										self.updateCall(self, info, msg)
 									}
 									//self.updateCall();
 								} else if (msg.data.event == 'hangup') {
@@ -428,44 +424,7 @@
 						}
 					}
 
-					// only current users events
-					if (self.currentUser.id == msg.data.userId) {	
-						if (msg.data.direction === 'in' && msg.data.callerId.name === "Support NO") {
-							var info = {
-								'Name': '',
-								'Address': '',
-								'Zipcode': '',
-								'City': '',
-								'Country': '',
-								'Number': ''
-							};
-							Oyatel.Call.numberInfo(msg.data.callerId.number, function (data) {
-								if (data.matches.length > 0) {
-									if (data.matches[0].name != null) info.Name = data.matches[0].name;
-									if (data.matches[0].address != null) info.Address = data.matches[0].address;
-									if (data.matches[0].zipcode != null) info.Zipcode = data.matches[0].zipcode;
-									if (data.matches[0].city != null) info.City = data.matches[0].city;
-								}
-								// what is this phone? 
-								//if (msg.data.userId == self.currentUser.id) info.Number = msg.data.callerId.number
-								if (data.location != null) info.Country = data.location
-								
-								if (msg.data.event == 'ring') {
-									//if this change
-									// self.precallid = self.caller.id
-													
-
-									self.caller.number = msg.data.callerId.number
-									self.caller.name = info.Name
-									self.caller.address = info.Address
-									self.caller.zipcode = info.Zipcode
-									self.caller.city = info.City
-									self.caller.country = info.Country
-
-								} 
-							})
-						}
-					}
+			
 				})
 			},
 			// Need to fix this CORS
