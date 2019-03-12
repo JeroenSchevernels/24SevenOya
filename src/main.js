@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import App from './App.vue'
-import Vuetify from "vuetify";
+import Vuetify from "vuetify"
 import 'vuetify/dist/vuetify.min.css'
 import Clipboard from 'v-clipboard'
 import router from './router'
 import store from './store'
+import './firebase'
 
 Vue.use(Clipboard)
 Vue.config.productionTip = false

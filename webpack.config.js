@@ -13,8 +13,7 @@ module.exports = {
         ]
     },
     devServer: {
-        open: true,
-        hot: true,
+        hot: true
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -24,3 +23,4 @@ module.exports = {
         new webpack.HotModuleReplacementPlugin(),
     ]
 };
+

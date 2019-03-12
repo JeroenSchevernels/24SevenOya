@@ -1,18 +1,108 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import firebase from 'firebase';
+import router from './router';
 
 Vue.use(Vuex)
+
+class Support {
+  constructor(id, name, avatar = "") {
+    this.id = id
+    this.name = name
+    this.status = 'UNAVAILABLE'
+    this.outgoingCalls = 0
+    this.incomingCalls = 0
+    this.avatar = avatar
+    this.callid = ''
+    this.originalCallName = ''
+    this.details = false
+  }
+}
 
 export default new Vuex.Store({
   state: {
     callId: 0,
     agents:[],
     callswaiting: [],
-    callsTaken:[]
+    callsTaken:[],
+    support:[],
+    showMenu: false,
+    showCallLog: true,
+    showCaller: true,
+    showWaiting: true,
+    showCallsToday: true,
+    showAgents: true,
+    documentTitle: '24Soya',
+    authorized: true,
+    currentUser: {},
+    abandoned: 0,
+    precallid: '',
+    caller: {
+      name: '',
+      number: '',
+      address: '',
+      city: '',
+      zipcode: '',
+      country: '',
+      id: ''
+    },
+    callid: [],
+    nextCallId: 1,
+    call: [],
+    agentsBusy: 0,
+    agentsOnline: 0,
+    callsAbandoned: 0,
+    callsCompleted: 0,
+    callsWaiting: 0,
+    userFB: null,
+    isAuthenticatedFB: false
   }, 
   getters: {
+    supportOnline: state => {
+      return state.support.filter(agent => agent.status != "UNAVAILABLE")
+    },
+    documentTitle: state => {
+      return 'Wait: ' + state.callsWaiting + ' Busy: ' + state.agentsBusy + '/' + state.agentsOnline
+    },
+    currentUser: state =>{
+      return state.currentUser.username
+    },
+    findIndexOfAgent: (state, id) => {
+      return state.support.findIndex(x => x.id == id)
+    },
+    caller: state => {
+      return state.caller
+    },
+    isAuthenticatedFB(state) {
+      return state.userFB !== null && state.userFB !== undefined;
+    },
+    call: state => {
+      return state.call
+    },
+    support: state => {
+      return state.support
+    },
+    //remove the below ones later
+    authorized: state => {
+      return state.authorized
+    },
+    agentsBusy: state =>{
+      return state.agentsBusy
+    },
+    agentsOnline:state =>{
+      return state.agentsOnline
+    },
     callLog: state => {
       return state.callsTaken
+    },
+    callsAbandoned: state => {
+      return state.callsAbandoned
+    },
+    callsWaiting: state => {
+      return state.callsWaiting
+    },
+    callsCompleted: state => {
+      return state.callsCompleted
     }
   },
   mutations: {
@@ -26,9 +116,171 @@ export default new Vuex.Store({
     },
     callTaken (state, agent){
 
+    },
+    authorize: state => {
+      state.authorized = true
+    },
+    deauthorize: state => {
+      state.authorized = false
+    },
+    test: state => {
+      
+    },
+    initSupport: state => {
+      let support = []
+      support.push(new Support(21102, "Adam"))
+      support.push(new Support(3199, "Adrian"))
+      support.push(new Support(3215, "Alexander", "./src/img/am.png"))
+      support.push(new Support(2944, "Andreas", "./src/img/and.png"))
+      support.push(new Support(20714, "Eirik", "./src/img/el.png"))
+      support.push(new Support(20321, "Guro"))
+      support.push(new Support(19608, "Hanne"))
+      support.push(new Support(3208, "Henrik"))
+      support.push(new Support(2947, "Iselin"))
+      support.push(new Support(21101, "Jeroen", "./src/img/jss.png"))
+      support.push(new Support(5546, "Joakim", "./src/img/jll.png"))
+      support.push(new Support(2943, "Kjerstin"))
+      support.push(new Support(21100, "Konrad", "./src/img/kga.png"))
+      support.push(new Support(16518, "Petter", "./src/img/pb.png"))
+      support.push(new Support(4958, "Sonja"))
+      support.push(new Support(3184, "Terje", "./src/img/tl.png"))
+      support.push(new Support(17333, "Truls"))
+
+      state.support = support
+    },
+    updatePresence: (state, index, status) => {
+        state.support[index].state = status
+    },
+    agentsBusy: (state, agentsBusy) => {
+      state.agentsBusy = agentsBusy
+    },
+    agentsOnline: (state, agentsOnline) => {
+      state.agentsOnline = agentsOnline
+    },
+    callsAbandoned: (state, callsAbandoned) => {
+      state.callsAbandoned = callsAbandoned
+    },
+    callsCompleted: (state, callsCompleted) => {
+      state.callsCompleted = callsCompleted
+    },
+    callsWaiting: (state, callsWaiting) => {
+      state.callsWaiting = callsWaiting
+    },
+    statusUpdate: (state, event) => {
+      if (state.support.some(el => el.id == event.userId)) {
+        let index = state.support.findIndex(x => x.id == event.userId)
+        let agent = state.support[index]
+        if (event.state != agent.status) {
+          let previous = agent.status;
+          agent.status = event.state
+
+          if ((previous === 'RINGING') && (agent.status === 'BUSY')) {
+            if (agent.originalCallName === "Support NO") {
+              agent.incomingCalls += 1
+              // let callsInLine = self.$store.callsInLine
+              
+              for (let c of state.call) {
+                if (c.callid == agent.callid) {
+                  c.status = 'taken'
+                  c.answered += agent.name + ' '
+                  c.timestampAnswered = new Date().getTime()
+                  c.timeTaken = (new Date().getTime() - c.timestamp) / 1000
+                  // self.$store.dispatch('callTaken', call, agent)
+                }
+              }
+              state.commit('incrementCallId', agent)
+
+            } else {
+              state.support[index].outgoingCalls += 1
+            }
+          }
+        }
+      }
+    },
+    updateCaller: (state, caller) => {
+      state.caller = caller
+    },
+    updateCurrentUser: (state, user) => {
+      state.currentUser = user
+    },
+    pushCall: (state, call) => {
+      state.call.push(call)
+    },
+    setUserFB(state, payload) {
+      state.userFB = payload;
+    },
+    setIsAuthenticatedFB(state, payload) {
+        state.isAuthenticatedFB = payload;
     }
   },
   actions: {
-    
+    agentsBusy ({commit}, agentsBusy){
+      commit('agentsBusy', agentsBusy)
+    },
+    agentsOnline ({commit}, agentsOnline){
+      commit('agentsOnline', agentsOnline)
+    },
+    callsAbandoned ({commit}, callsAbandoned){
+      commit('callsAbandoned', callsAbandoned)
+    },
+    callsCompleted ({commit}, callsCompleted){
+      commit('callsCompleted', callsCompleted)
+    },
+    callsWaiting ({commit}, callsWaiting){
+      commit('callsWaiting', callsWaiting)
+    },
+    authorize ({commit}){
+      commit('authorize')
+    },
+    addSupport ({commit}){
+      commit('initSupport')
+    },
+    updatePresence ({commit}, index, status){
+      console.log(index + " " + status)
+      commit('updatePresence', index, status)
+    },
+    userJoinFB({ commit }, { email, password }) {
+      firebase
+          .auth()
+          .createUserWithEmailAndPassword(email, password)
+          .then(user => {
+              commit('setUserFB', user);
+              commit('setIsAuthenticatedFB', true);
+              router.push('/');
+          })
+          .catch(() => {
+              commit('setUserFB', null);
+              commit('setIsAuthenticatedFB', false);
+          });
+    },
+    userLoginFB({ commit }, { email, password }) {
+      firebase
+          .auth()
+          .signInWithEmailAndPassword(email, password)
+          .then(user => {
+              commit('setUserFB', user);
+              commit('setIsAuthenticatedFB', true);
+              router.push('/');
+          })
+          .catch(() => {
+              commit('setUserFB', null);
+              commit('setIsAuthenticatedFB', false);
+          });
+  },
+  userSignOutFB({ commit }) {
+    firebase
+        .auth()
+        .signOut()
+        .then(() => {
+            commit('setUserFB', null);
+            commit('setIsAuthenticatedFB', false);
+            router.push('/');
+        })
+        .catch(() => {
+            commit('setUserFB', null);
+            commit('setIsAuthenticatedFB', false);
+            router.push('/');
+        });
+  }
   }
 })

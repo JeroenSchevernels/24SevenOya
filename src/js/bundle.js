@@ -6887,9 +6887,10 @@ jQuery.cookie = function (key, value, options) {
                 // TODO: can/should we deauthorize OAuth access from the client-side ?
 
                 // delete cookie
-                $.cookie('oyatel_access', null, {
-                    path: '/'
-                });
+                //Annoying as shit in test
+                // $.cookie('oyatel_access', null, {
+                //     path: '/'
+                // });
 
                 // notify
                 $(this).trigger("deauthorized");

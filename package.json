@@ -5,9 +5,10 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && webpack --mode production",
-    "serve": "webpack-dev-server --mode development"
+    "serve": "webpack-dev-server --mode development --history-api-fallback"
   },
   "dependencies": {
+    "firebase": "^5.8.6",
     "v-clipboard": "^2.2.1",
     "vue-router": "^3.0.2",
     "vuetify": "^1.4.3",

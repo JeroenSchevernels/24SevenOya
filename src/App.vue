@@ -1,10 +1,9 @@
 <template>
-	<div id="app">
-		<v-app>
-			<title>{{documentTitle}}</title>
-			<v-toolbar dark>
-				<v-menu v-model="showMenu" :close-on-content-click="false" :nudge-width="200" offset-x>
-	
+  <div id="app">
+    <v-app>
+      <title>{{documentTitle}}</title>
+      <v-toolbar dark>
+        <!-- <v-menu v-model="showMenu" :close-on-content-click="false" :nudge-width="200" offset-x>
 					<v-btn icon slot="activator">
 						<v-icon large>menu</v-icon>
 					</v-btn>
@@ -31,581 +30,310 @@
 							</v-list-tile-action>
 							<v-list-tile-title>Enable agents</v-list-tile-title>
 						</v-list-tile>
-	
 					</v-list>
-				</v-menu>
-				<v-toolbar-title>
-					24SOya
-				</v-toolbar-title>
-				<v-spacer></v-spacer>
-				<v-toolbar-items>
-					<v-btn flat to="/">
-						<v-icon>home</v-icon>Home
-					</v-btn>
-					<v-btn flat to="/changelog">
-						<v-icon>info</v-icon>Changelog
-					</v-btn>
-				</v-toolbar-items>
-				<v-spacer></v-spacer>
-				<v-toolbar-items>
-					<v-btn flat v-if="!authorized" @click="login">Login with Oyatel</v-btn>
-					<v-btn flat v-if="authorized" @click="logout">Logout ({{currentUser.username}})</v-btn>
-				</v-toolbar-items>
-			</v-toolbar>
-			<div v-if="authorized">
-	
-	
-				<v-container fluid grid-list-md>
-					<v-layout row wrap style="height: 88vh">
-						<v-flex d-flex xs12 sm7>
-							<v-layout column wrap>
-								<v-flex d-flex v-if="showCallsToday">
-									<v-card v-bind:style="{ 'background-image': callsBoxGradient}">
-										<v-toolbar flat>
-											<v-toolbar-title>Calls today: {{totalCalls}}</v-toolbar-title>
-										</v-toolbar>
-										<v-layout row>
-											<v-card-text class="text-xs-left display-3">
-												<v-icon x-large left color="green">call</v-icon>{{callsCompleted}}
-											</v-card-text>
-											<v-card-text class="text-xs-right display-3">{{callsAbandoned}}
-												<v-icon x-large right color="red">call_missed</v-icon>
-											</v-card-text>
-										</v-layout>
-									</v-card>
-								</v-flex>
-								<v-flex d-flex>
-									<v-layout row wrap>
-										<v-flex d-flex xs12 sm4 v-if="showWaiting">
-											<v-card v-bind:style="{ backgroundColor: queueBoxColor}">
-												<v-toolbar flat>
-													<v-toolbar-title>
-														Waiting
-													</v-toolbar-title>
-												</v-toolbar>
-												<v-card-text class="text-xs-center display-3" v-if="showWaiting">
-													{{callsWaiting}}<br />
-													<v-icon v-if="callsWaiting>0" x-large color="red">ring_volume</v-icon>
-												</v-card-text>
-											</v-card>
-										</v-flex>
-										<v-flex d-flex xs12 sm8 v-if="showCaller">
-											<v-card>
-												<v-toolbar flat>
-													<v-toolbar-title>
-														Caller info
-													</v-toolbar-title>
-													<v-spacer></v-spacer>
-													<v-btn icon v-clipboard="() => copyField()" v-clipboard:success="clipboardSuccessHandler" v-clipboard:error="clipboardErrorHandler">
-														<v-icon large>assignment</v-icon>
-													</v-btn>
-												</v-toolbar>
-												<v-layout align-center justify-center column>
-													<v-card-text>
-														<span class="headline">
-																<v-icon v-if="caller.number!=''" small color="grey">phone</v-icon> {{caller.number}}
-															</span> &nbsp;&nbsp;&nbsp;
-														<span class="headline">
-																<v-icon v-if="caller.name.trim()!=''" small color="grey">business</v-icon> {{caller.name}}
-															</span><br />
-														<span>{{caller.address}}</span><br />
-														<span>{{caller.zipcode}}&nbsp;{{caller.city}}</span><br />
-														<span>{{caller.country}}</span>
-													</v-card-text>
-												</v-layout>
-											</v-card>
-										</v-flex>
-									</v-layout>
-								</v-flex>
-								<v-flex d-flex v-if="showAgents">
-									<v-card v-bind:style="{ backgroundColor: agentsBoxColor}">
-										<v-toolbar flat>
-											<v-toolbar-title>Support logged in: {{agentsOnline}}</v-toolbar-title>
-										</v-toolbar>
-										<v-layout row>
-											<v-card-text class="text-xs-left"><span class="display-3">
-														<v-icon x-large left color="green">person_outline</v-icon> {{agentsAvailable}}
-													</span></v-card-text>
-											<v-card-text class="text-xs-right"><span class="display-3">{{agentsBusy}} <v-icon x-large right color="red">person</v-icon></span></v-card-text>
-										</v-layout>
-										<v-layout row>
-											<v-flex>
-												<div class="text-xs-center">
-													<v-chip v-for="agent in supportOnline" v-bind:class="agent.status" :key="agent.id" @click="agent.details = !agent.details">
-														<v-avatar v-if="agent.avatar != ''">
-															<img :src="agent.avatar">
-														</v-avatar>
-														{{ agent.name }} : {{ agent.outgoingCalls + agent.incomingCalls }}
-														<span v-if="agent.details" class="grey--text text--darken-2">
-																<v-icon small>call_received</v-icon> {{agent.incomingCalls}}
-																<v-icon small>call_made</v-icon> {{agent.outgoingCalls}}
-															</span>
-													</v-chip>
-												</div>
-											</v-flex>
-										</v-layout>
-									</v-card>
-								</v-flex>
-							</v-layout>
-						</v-flex>
-						<v-flex d-flex xs12 sm5 v-if="showCallLog">
-							<v-layout column>
-								<v-flex>
-									<v-card>
-										<v-toolbar flat>
-											<v-toolbar-title>Call log</v-toolbar-title>
-											<v-spacer></v-spacer>
-											<v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
-										</v-toolbar>
-									</v-card>
-									<v-card style="overflow-y: scroll; height:80.65vh">
-										<v-data-table :headers="headers" :items="call" :search="search" item-key="callid" hide-actions class="fixed-header">
-											<!-- class fixed header is commented out in css -->
-											<template slot="items" slot-scope="props">
-													<tr>
-														<td>{{props.item.time}}</td>
-														<td>{{props.item.number}}</td>
-														<td>{{props.item.name}}</td>
-														<td>{{props.item.answered}}</td>
-														<td>{{props.item.timeTaken}}</td>
-													</tr>
-</template>
-											<v-alert slot="no-results" :value="true" color="error" icon="warning">
-												Your search for "{{ search }}" found no results.
-											</v-alert>
-										</v-data-table>
-									</v-card>
-								</v-flex>
-							</v-layout>
-						</v-flex>
-					</v-layout>
-				</v-container>
-			</div>
-			<router-view></router-view>
-		</v-app>
-	</div>
+        </v-menu>-->
+        <v-toolbar-title>24SOya</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-toolbar-items v-if="isAuthenticatedFB">
+			<v-btn flat to="/">
+				<v-icon>home</v-icon>Home
+			</v-btn>
+			<v-btn flat to="/changelog">
+				<v-icon>info</v-icon>Changelog
+			</v-btn>
+			<v-btn flat to="/wishlist">
+				<v-icon>add_shopping_cart</v-icon>Change requests
+			</v-btn>
+        </v-toolbar-items>
+        <v-spacer></v-spacer>
+        <v-toolbar-items>
+			<v-btn flat v-if="!$store.state.authorized" @click="login">Login with Oyatel</v-btn>
+			<v-btn flat v-if="$store.state.authorized" @click="logout">Logout ({{currentUser}})</v-btn>
+			<v-btn v-if="!isAuthenticatedFB" flat to="/join">
+				<v-icon>how_to_reg</v-icon>Join Firebase
+			</v-btn>
+			<v-btn v-if="!isAuthenticatedFB" flat to="/signin">
+				<v-icon>person</v-icon>Sign in Firebase
+			</v-btn>
+			<v-btn v-if="isAuthenticatedFB" flat @click="logoutFB">
+				Logout Firebase
+			</v-btn>
+        </v-toolbar-items>
+      </v-toolbar>
+      <div v-if="$store.state.authorized">
+        <router-view></router-view>
+      </div>
+	  <div v-if="!$store.state.authorized">
+        <router-view to="/join"></router-view>
+      </div>
+    </v-app>
+  </div>
 </template>
 
 <script>
-	import { mapGetters, mapMutations, mapActions } from 'vuex'
-	class Call {
-		constructor() {
-			this.callid
-		}
-	}
-	class Support {
-		constructor(id, name, avatar = "") {
-			this.id = id
-			this.name = name
-			this.status = 'UNAVAILABLE'
-			this.outgoingCalls = 0
-			this.incomingCalls = 0
-			this.avatar = avatar
-			this.callid = ''
-			this.originalCallName = ''
-			this.details = false
-		}
-	}
-	
-	export default {
-		name: 'app',
-		components: {
-	
-		},
-		data() {
-			return {
-				showMenu: false,
-				showCallLog: true,
-				showCaller: true,
-				showWaiting: true,
-				showCallsToday: true,
-				showAgents: true,
-				documentTitle: '24Soya',
-				authorized: true,
-				currentUser: {},
-				abandoned: 0,
-				precallid: '',
-				caller: {
-					name: '',
-					number: '',
-					address: '',
-					city: '',
-					zipcode: '',
-					country: '',
-					id: ''
-				},
-				callid: [],
-				nextCallId: 1,
-				call: [
-					// { // testing purpose and explanation of existing fields
-					// 	time: '09:15',
-					// 	number: '9191991',
-					//  queue: 'Support NO',
-					// 	name: ' name',
-					// 	callid: [''],
-					// 	status: 'new, taken, done',
-					// 	answered: Support[i]
-					// }
-				],
-				agentsBusy: 0,
-				agentsOnline: 0,
-				callsAbandoned: 0,
-				callsCompleted: 0,
-				callsWaiting: 0,
-				search: '',
-				headers: [{
-						text: 'Time',
-						value: 'time'
-					},
-					{
-						text: 'Number',
-						value: 'number'
-					},
-					{
-						text: 'Name',
-						value: 'name'
-					},
-					{
-						text: 'Answered by',
-						value: 'answered'
-					},
-					{
-						text: 'Taken',
-						value: 'timeTaken'
-					}
-					// ,{text: 'Callid', value: 'callid'}
-				],
-				log: [],
-				hangups: [],
-				support: []
-			}
-		},
-		methods: {
-			supportCheckId(id) {
-				var self = this
-				var found = self.support.some(el => el.id == id);
-				return found;
-			},
-			statusUpdate(id, state) {
-				var self = this
-	
-				if (self.supportCheckId(id)) {
-					let index = self.support.findIndex(x => x.id == id);
-					let agent = self.support[index]
-					if (state != agent.status) {
-						let previous = agent.status;
-						agent.status = state;
-	
-						if ((previous === 'RINGING') && (agent.status === 'BUSY')) {
-							if (agent.originalCallName === "Support NO") {
-								agent.incomingCalls += 1
-								for (let c of self.call) {
-									if (c.callid == agent.callid) {
-										c.status = 'taken'
-										c.answered += agent.name + ' '
-										c.timestampAnswered = new Date().getTime()
-										c.timeTaken = self.ts2time(new Date().getTime()) // waiting time
-									}
-								}
-								self.$store.commit('incrementCallId', agent)
-	
-							} else {
-								self.support[index].outgoingCalls += 1
-							}
-							//self.support[index].callid = ''  //wrong spot, happens just for current call taker
-						}
-					}
-				}
-			},
-			copyField() {
-				return ('Samtale logg ' + this.caller.number + ' ' + this.caller.name).trim()
-			},
-			clipboardSuccessHandler({
-				value,
-				event
-			}) {
-				// console.log('success', value)
-			},
-			clipboardErrorHandler({
-				value,
-				event
-			}) {
-				console.log('error', value)
-			},
-			ts2time(number) {
-				let timestamp = new Date(number);
-				let hours = "0" + timestamp.getHours();
-				let minutes = "0" + timestamp.getMinutes();
-				// let seconds = "0" + timestamp.getSeconds();
-				return hours.substr(-2) + ':' + minutes.substr(-2) //+ ':' + seconds.substr(-2);
-			},
-			deauthorized() {
-				this.authorized = false
-			},
-			updateCall(self, info, msg) {
-				self.call.push({
-					number: msg.data.callerId.number,
-					name: info.Name,
-					timestamp: new Date().getTime(),
-					time: self.ts2time(new Date().getTime()),
-					callid: self.nextCallId,
-					status: 'new',
-					queue: msg.data.callerId.name,
-					answered: ''
-				})
-			},
-			pushCall(call) {
-				var self = this
-				self.call.push(call)
-			},
-			callExist(caller) {
-				// checking if caller exist 
-				var self = this
-				//clearer with .some() ???
-				for (let c in self.call) {
-					if (caller.callerId.number == self.call[c].number) {
-						if (self.call[c].timestamp - new Date().getTime() < 120000) {
-							return true
-						}
-					}
-				}
-				return false
-			},
-			authorize() {
-				var self = this
-				self.authorized = true
-	
-				Oyatel.Events.subscribe('/events/presence', function(msg) {
-					if (msg.data.event == "fulldump") {
-						for (let event in msg.data.events) {
-							self.statusUpdate(msg.data.events[event].userId, msg.data.events[event].state);
-						}
-					} else {
-						self.statusUpdate(msg.data.userId, msg.data.state);
-					}
-				});
-	
-				Oyatel.User.currentUser(function(user) {
-					self.currentUser = user;
-				});
-	
-				Oyatel.Events.subscribe('/events/queue', function(msg) {
-					if (msg.data.queueId == "que0110312") { //Filter on Support NO queue only!
-						self.agentsBusy = msg.data.agentsBusy;
-						self.agentsOnline = msg.data.agentsOnline;
-						self.callsAbandoned = msg.data.callsAbandoned;
-						self.callsCompleted = msg.data.callsCompleted;
-						self.callsWaiting = msg.data.callsWaiting;
-						if (self.callsWaiting == 0) {
-							for (let id in self.support) {
-								self.support[id].callid = ""
-							}
-						}
-						self.documentTitle = 'Wait: ' + self.callsWaiting + ' Busy: ' + self.agentsBusy + '/' + self.agentsOnline
-					}
-				})
-	
-				Oyatel.Events.subscribe('/events/call', function(msg) {
-	
-					// Support NO in 
-					// Partner norge out or others out 
-					//add queue filter
-					let bool = true
-					if (self.callExist(msg.data)) {
-						bool = false
-					} else {
-						self.nextCallId++
-							self.callid.push(msg.data.id)
-						self.log.push(msg.data)
-					}
-	
-					let originalCallName = msg.data.callerId.name
-	
-					// checks if user is in support array
-					if (self.supportCheckId(msg.data.userId)) {
-	
-						// direction -> not working
-						if (msg.data.direction === "out" || msg.data.callerId.name === "Partner Norge") {
-							// take time on outgoing calls ? 
-						}
-	
-						if (msg.data.direction === 'in') {
-							var info = {
-								'Name': '',
-								'Address': '',
-								'Zipcode': '',
-								'City': '',
-								'Country': '',
-								'Number': '',
-								'Queue': ''
-							};
-	
-							Oyatel.Call.numberInfo(msg.data.callerId.number, function(data) {
-								if (data.matches.length > 0) {
-									if (data.matches[0].name != null) info.Name = data.matches[0].name;
-									if (data.matches[0].address != null) info.Address = data.matches[0].address;
-									if (data.matches[0].zipcode != null) info.Zipcode = data.matches[0].zipcode;
-									if (data.matches[0].city != null) info.City = data.matches[0].city;
-								}
-								if (msg.data.userId == self.currentUser.id) {
-									info.Number = msg.data.callerId.number;
-								}
-								if (data.location != null) info.Country = data.location;
-	
-								for (let id in self.support) {
-									if (self.support[id].status != 'BUSY' && self.support[id].id == msg.data.userId) {
-										self.support[id].callid = self.nextCallId
-										self.support[id].originalCallName = originalCallName
-									}
-								}
-	
-								if (msg.data.event == 'ring') {
-									// only current users events
-									if (self.currentUser.id == msg.data.userId) {
-										self.caller.number = msg.data.callerId.number
-										self.caller.name = info.Name
-										self.caller.address = info.Address
-										self.caller.zipcode = info.Zipcode
-										self.caller.city = info.City
-										self.caller.country = info.Country
-									}
-									if (self.call.length > 0) {
-										if (self.call[self.call.length - 1].number === msg.data.callerId.number) { // check if phone number is the same as the previous one
-	
-											if (new Date().getTime() - self.call[self.call.length - 1].timestamp < 120000) { //less than 2 minutes since last, so we assume same call
-												self.call[self.call.length - 1].timestamp = new Date().getTime()
-												self.call[self.call.length - 1].time = self.ts2time(new Date().getTime())
-											} else { //same number, but longer than 2 minutes ago
-												// console.log('same number, but longer than 2 minutes ago');
-												// console.log('previous' + self.call[self.call.length - 1].timestamp);
-												// console.log('now' + new Date().getTime());
-												self.updateCall(self, info, msg)
-											}
-										} else { //previous number not the same as the current // true
-											self.updateCall(self, info, msg)
-										}
-									} else { //no call in list yet
-										self.updateCall(self, info, msg)
-									}
-									//self.updateCall();
-								} else if (msg.data.event == 'hangup') {
-									// hangup
-									self.hangups.push(msg.data)
-								} else {
-									alert('other status: ' + msg.data);
-								}
-							})
-						}
-					}
-				})
-			},
-			// Need to fix this CORS
-			login() {
-				Oyatel.authorize()
-			},
-			logout() {
-				Oyatel.deauthorize()
-			},
-			init() {
-				var self = this
-				Oyatel.init('7660F6FB-418F-44F4-B1F3-F6CB2F7B0223', 'https://24soya.netlify.com/oauth_cb.html')
-				Oyatel.bind('authorized', function() {
-					self.authorize()
-				})
-				Oyatel.bind('authorizationfailed', function(errormsg) {
-					console.log('The user rejected the authorization, or some error occured: ' + errormsg);
-				})
-				Oyatel.bind('deauthorized', function() {
-					console.log('onDeauthorized callback called')
-					self.deauthorized()
-				})
-				Oyatel.checkAuthorization()
-				self.authorize()
-			}
-		},
-		mounted() {
-			this.init()
-			this.support.push(new Support(21102, "Adam"));
-			this.support.push(new Support(3199, "Adrian"));
-			this.support.push(new Support(3215, "Alexander", "./src/img/am.png"));
-			this.support.push(new Support(2944, "Andreas", "./src/img/and.png"));
-			this.support.push(new Support(20714, "Eirik", "./src/img/el.png"));
-			this.support.push(new Support(20321, "Guro"));
-			this.support.push(new Support(19608, "Hanne"));
-			this.support.push(new Support(3208, "Henrik"));
-			this.support.push(new Support(2947, "Iselin"));
-			this.support.push(new Support(21101, "Jeroen", "./src/img/jss.png"));
-			this.support.push(new Support(5546, "Joakim", "./src/img/jll.png"));
-			this.support.push(new Support(2943, "Kjerstin"));
-			this.support.push(new Support(21100, "Konrad"));
-			this.support.push(new Support(16518, "Petter", "./src/img/pb.png"));
-			this.support.push(new Support(4958, "Sonja"));
-			this.support.push(new Support(3184, "Terje", "./src/img/tl.png"));
-			this.support.push(new Support(17333, "Truls"));
-	
-			if (localStorage.call) {
-				this.call = localStorage.call;
-			}
-		},
-		watch: {
-	
-		},
-		computed: {
-			supportOnline: function() {
-				var supportOnline = this.support.filter(agent => agent.status != "UNAVAILABLE");
-				return supportOnline;
-			},
-			agentsBoxColor: function() {
-				return "RGB(255," + (255 - (255 * this.agentsBusy / this.agentsOnline)) + "," + (255 - (255 * this.agentsBusy /
-					this.agentsOnline)) + ")"
-			},
-			queueBoxColor: function() {
-				return "RGB(255," + (255 - this.callsWaiting * 50) + "," + (255 - this.callsWaiting * 50) + ")"
-			},
-			callsBoxGradient: function() {
-				let percentage = Math.round(this.callsCompleted / (this.callsCompleted + this.callsAbandoned) * 100);
-				if (percentage > 99) { //stupid, but gradient expected
-					return "linear-gradient(to right, #a2f282 " + (percentage - 3) + "% ," + percentage + "% ,#a2f282 " + (percentage +
-						3) + "% )";
-				} else if (percentage < 1) { //stupid, but gradient expected
-					return "linear-gradient(to right, #f7796a " + (percentage - 3) + "% ," + percentage + "% ,#f7796a " + (percentage +
-						3) + "% )";
-				} else {
-					return "linear-gradient(to right, #a2f282 " + (percentage - 3) + "% ," + percentage + "% ,#f7796a " + (percentage +
-						3) + "% )";
-				}
-			},
-			totalCalls: function() {
-				if (this.callsCompleted + this.callsAbandoned > 0) {
-					return this.callsCompleted + this.callsAbandoned + " (" + Math.round(100 * this.callsCompleted / (this.callsCompleted +
-						this.callsAbandoned)) + "%)"
-				} else {
-					return this.callsCompleted + this.callsAbandoned
-				}
-			},
-			agentsAvailable: function() {
-				return this.agentsOnline - this.agentsBusy
-			}
-		}
-	}
+import { mapGetters, mapMutations, mapActions } from "vuex";
+
+export default {
+  name: "app",
+  components: {},
+  data() {
+    return {
+      showMenu: false,
+      showCallLog: true,
+      showCaller: true,
+      showWaiting: true,
+      showCallsToday: true,
+      showAgents: true,
+      precallid: "",
+      callerNum: [],
+      nextCallId: 1,
+      // call: [
+      //   // { // testing purpose and explanation of existing fields
+      //   // 	time: '09:15',
+      //   // 	number: '9191991',
+      //   //  queue: 'Support NO',
+      //   // 	name: ' name',
+      //   // 	callid: [''],
+      //   // 	status: 'new, taken, done',
+      //   // 	answered: Support[i]
+      //   // }
+      // ],
+      log: [],
+      hangups: []
+    };
+  },
+  methods: {
+	  logoutFB() {
+      this.$store.dispatch('userSignOutFB');
+    },
+    ts2time(number) {
+      let timestamp = new Date(number);
+      let hours = "0" + timestamp.getHours();
+      let minutes = "0" + timestamp.getMinutes();
+      // let seconds = "0" + timestamp.getSeconds();
+      return hours.substr(-2) + ":" + minutes.substr(-2); //+ ':' + seconds.substr(-2);
+    },
+    deauthorized() {
+      this.$store.commit('deauthorize')
+    },
+    updateCall(self, info, msg) {
+      info.timestamp = new Date().getTime();
+      info.time = self.ts2time(new Date().getTime());
+      info.status = "new";
+      info.queue = msg.data.callerId.name;
+	  info.answered = "";
+	  // callid
+	  info.callid = self.nextCallId;
+	  
+	  self.$store.commit('pushCall', info)
+    },
+    // pushCall(call) {
+    //   var self = this;
+    //   self.call.push(call);
+    // },
+    // callExist(caller) {
+    //   // checking if caller exist
+    //   var self = this;
+    //   for (let c in self.call) {
+    //     if (caller.callerId.number == self.call[c].number) {
+    //       if (self.call[c].timestamp - new Date().getTime() < 120000) {
+    //         return true;
+    //       }
+    //     }
+    //   }
+    //   return false;
+    // },
+    authorize() {
+      var self = this;
+      // dispatch or commit ?
+      self.$store.commit("authorize");
+
+      Oyatel.Events.subscribe("/events/presence", function(msg) {
+        let data = msg.data;
+        if (data.event == "fulldump") {
+          for (let event in data.events) {
+            self.$store.commit("statusUpdate", data.events[event]);
+          }
+        } else {
+          self.$store.commit("statusUpdate", data);
+        }
+      });
+
+      Oyatel.User.currentUser(function(user) {
+        self.$store.commit("updateCurrentUser", user);
+      });
+
+      Oyatel.Events.subscribe("/events/queue", function(msg) {
+        if (msg.data.queueId == "que0110312") {
+          //Filter on Support NO queue only!
+          self.$store.dispatch("agentsBusy", msg.data.agentsBusy)
+          self.$store.dispatch("agentsOnline", msg.data.agentsOnline)
+          self.$store.dispatch("callsAbandoned", msg.data.callsAbandoned)
+          self.$store.dispatch("callsCompleted", msg.data.callsCompleted)
+          self.$store.dispatch("callsWaiting", msg.data.callsWaiting)
+        }
+      });
+
+      Oyatel.Events.subscribe("/events/call", function(msg) {
+        // Support NO in
+        // Partner norge out or others out
+        //add queue filter
+        // let bool = true;
+
+        // if (self.callExist(msg.data)) {
+        //   bool = false;
+        // } else {
+        //   self.nextCallId++;
+        //   self.callid.push(msg.data.id);
+        //   self.log.push(msg.data);
+        // }
+
+        let originalCallName = msg.data.callerId.name;
+        // checks if user is in support array
+        if (self.support.some(el => el.id == msg.data.userId)) {
+          
+          // direction -> not working
+          if (msg.data.direction === "out" || msg.data.callerId.name === "Partner Norge") {
+            // take time on outgoing calls ?
+            console.log("outgoing call - app.vue events/call")
+          }
+
+          if (msg.data.direction === "in") {
+            if(self.callerNum.some(el => el.id == msg.data.callerId.number)){
+              console.log("duplicate")
+            }else{
+              self.callerNum.push(msg.data.callerId.callerNum)
+
+              let info = {
+                userid: "",
+                name: "",
+                address: "",
+                zipcode: "",
+                city: "",
+                country: "",
+                number: "",
+                queue: ""
+              }
+              
+              if (msg.data.event == "ring") {
+                // check local data first?
+                Oyatel.Call.numberInfo(msg.data.callerId.number, function(data) {
+                  if (data.matches.length > 0) {
+                    //console.log(data.matches.length + " amount of matches - app.vue Oyatel.Call.numberInfo")
+                    if (data.matches[0].name != null){
+                      info.name = data.matches[0].name
+                    }
+                    if (data.matches[0].address != null){
+                      info.address = data.matches[0].address
+                    }
+                    if (data.matches[0].zipcode != null){
+                      info.zipcode = data.matches[0].zipcode
+                    }
+                    if (data.matches[0].city != null){
+                      info.city = data.matches[0].city
+                    }
+                  }
+                  if (data.location != null) {
+                    info.country = data.location
+                  }
+                  
+                  // all calls
+                  // if (msg.data.userId == self.$store.currentUser.id) {
+                  info.number = msg.data.callerId.number
+                  // info.userid = msg.data.userId
+                  self.$store.commit("updateCaller", info)
+                  self.updateCall(self, info, msg)
+                  // }
+                });
+              } else if (msg.data.event == "hangup") {
+                // console.log("hangup")
+              } else {
+                console.log("other status " + msg.data)
+              }
+                // for (let id in self.support) {
+                  //   if (self.support[id].status != "BUSY" && self.support[id].id == msg.data.userId) {
+                    //     self.support[id].callid = self.nextCallId;
+                //     self.support[id].originalCallName = originalCallName;
+                //   }
+                // }
+
+                //   if (self.call.length > 0) {
+                  //     if (self.call[self.call.length - 1].number === msg.data.callerId.number) { 
+                    //       // check if phone number is the same as the previous one
+                //       if (new Date().getTime() - self.call[self.call.length - 1].timestamp < 120000) {
+                  //         //less than 2 minutes since last, so we assume same call
+                //         self.call[self.call.length - 1].timestamp = new Date().getTime()
+                //         self.call[self.call.length - 1].time = self.ts2time(new Date().getTime())
+                //       } else {
+                  //         //same number, but longer than 2 minutes ago
+                //         self.updateCall(self, info, msg);
+                //       }
+                //     } else {
+                  //       //previous number not the same as the current // true
+                //       self.updateCall(self, info, msg);
+                //     }
+                //   } else {
+                  //     //no call in list yet
+                //     self.updateCall(self, info, msg);
+                //   }
+                //   //self.updateCall();
+                //   // hangup
+                //   console.log("please make me");
+                //   alert("other status: " + msg.data);
+            }
+          }
+        }
+      });
+    },
+    login() {
+      Oyatel.authorize();
+    },
+    logout() {
+      Oyatel.deauthorize();
+    },
+    init() {
+      var self = this;
+      Oyatel.init(
+        "7660F6FB-418F-44F4-B1F3-F6CB2F7B0223",
+        "https://24soya.netlify.com/oauth_cb.html"
+      );
+      Oyatel.bind("authorized", function() {
+        self.authorize();
+      });
+      Oyatel.bind("authorizationfailed", function(errormsg) {
+        console.log(
+          "The user rejected the authorization, or some error occured: " +
+            errormsg
+        );
+      });
+      Oyatel.bind("deauthorized", function() {
+        self.$store.commit("deauthorize");
+      });
+      Oyatel.checkAuthorization();
+      self.authorize();
+    }
+  },
+  mounted() {
+    this.init();
+    this.$store.dispatch("addSupport");
+
+    if (localStorage.call) {
+      this.call = localStorage.call;
+    }
+  },
+  watch: {},
+  computed: {
+	isAuthenticatedFB() {
+            return this.$store.getters.isAuthenticatedFB;
+    },
+	...mapGetters(["documentTitle", "supportOnline", "currentUser", "call", "support"])
+  }
+};
 </script>
 
 <style>
-	#app {
-		background-color: #828282;
-		font-family: Roboto, sans-serif;
-	}
-	
-	.AVAILABLE,
-	.RINGING {
-		background-color: #a2f282 !important;
-	}
-	
-	.BUSY {
-		background-color: #f7796a !important;
-	}
-	
-	.OTHER {
-		background-color: #e7e7e7 !important;
-	}
+#app {
+  background-color: #828282;
+  font-family: Roboto, sans-serif;
+}
 </style>
