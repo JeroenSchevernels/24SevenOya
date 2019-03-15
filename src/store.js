@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import firebase from 'firebase';
 import router from './router';
+var firebase = require('firebase/app');
+require('firebase/auth');
+require("firebase/firestore");
 
 Vue.use(Vuex)
 
@@ -22,10 +24,10 @@ class Support {
 export default new Vuex.Store({
   state: {
     callId: 0,
-    agents:[],
+    agents: [],
     callswaiting: [],
-    callsTaken:[],
-    support:[],
+    callsTaken: [],
+    support: [],
     showMenu: false,
     showCallLog: true,
     showCaller: true,
@@ -49,6 +51,7 @@ export default new Vuex.Store({
     callid: [],
     nextCallId: 1,
     call: [],
+    callWaiting: [],
     agentsBusy: 0,
     agentsOnline: 0,
     callsAbandoned: 0,
@@ -56,7 +59,7 @@ export default new Vuex.Store({
     callsWaiting: 0,
     userFB: null,
     isAuthenticatedFB: false
-  }, 
+  },
   getters: {
     supportOnline: state => {
       return state.support.filter(agent => agent.status != "UNAVAILABLE")
@@ -64,7 +67,7 @@ export default new Vuex.Store({
     documentTitle: state => {
       return 'Wait: ' + state.callsWaiting + ' Busy: ' + state.agentsBusy + '/' + state.agentsOnline
     },
-    currentUser: state =>{
+    currentUser: state => {
       return state.currentUser.username
     },
     findIndexOfAgent: (state, id) => {
@@ -82,14 +85,17 @@ export default new Vuex.Store({
     support: state => {
       return state.support
     },
+    callWaiting: state => {
+      return state.callWaiting
+    },
     //remove the below ones later
     authorized: state => {
       return state.authorized
     },
-    agentsBusy: state =>{
+    agentsBusy: state => {
       return state.agentsBusy
     },
-    agentsOnline:state =>{
+    agentsOnline: state => {
       return state.agentsOnline
     },
     callLog: state => {
@@ -106,15 +112,10 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    incrementCallId (state, agent) {
-      console.log("test")
-      state.callId++
-      state.agents.push(agent)
-    },
-    callWaiting (state, call){
+    callWaiting(state, call) {
       state.callswaiting.push(call)
     },
-    callTaken (state, agent){
+    callTaken(state, agent) {
 
     },
     authorize: state => {
@@ -124,7 +125,7 @@ export default new Vuex.Store({
       state.authorized = false
     },
     test: state => {
-      
+
     },
     initSupport: state => {
       let support = []
@@ -149,7 +150,7 @@ export default new Vuex.Store({
       state.support = support
     },
     updatePresence: (state, index, status) => {
-        state.support[index].state = status
+      state.support[index].state = status
     },
     agentsBusy: (state, agentsBusy) => {
       state.agentsBusy = agentsBusy
@@ -173,28 +174,34 @@ export default new Vuex.Store({
         if (event.state != agent.status) {
           let previous = agent.status;
           agent.status = event.state
-
-          if ((previous === 'RINGING') && (agent.status === 'BUSY')) {
-            if (agent.originalCallName === "Support NO") {
+          console.log(previous + ' --> ' + event.state)
+          if ((previous == 'RINGING') && (agent.status == 'BUSY')) {
+            //if (agent.originalCallName == "Support NO") {
+              console.log(agent.name + " statusupdate")
               agent.incomingCalls += 1
-              // let callsInLine = self.$store.callsInLine
-              
-              for (let c of state.call) {
-                if (c.callid == agent.callid) {
-                  c.status = 'taken'
-                  c.answered += agent.name + ' '
-                  c.timestampAnswered = new Date().getTime()
-                  c.timeTaken = (new Date().getTime() - c.timestamp) / 1000
-                  // self.$store.dispatch('callTaken', call, agent)
-                }
-              }
-              state.commit('incrementCallId', agent)
+              console.log(1)
+              let indexcall = state.call.lastIndexOf(state.callWaiting.shift())
+              console.log(2)
 
-            } else {
-              state.support[index].outgoingCalls += 1
-            }
+              let c = state.call[indexcall]
+              console.log(3)
+
+              c.status = 'taken'
+              c.answered = agent.name
+              c.timestampAnswered = new Date().getTime()
+              c.timeTaken = (new Date().getTime() - c.timestamp) / 1000
+              // c.callTaken = agent.name
+              console.log(4)
+
+              state.call[indexcall] = c
+              console.log(state.call)
+              // state.callId++
+            // }
+          } else {
+            // state.support[index].outgoingCalls += 1 
           }
         }
+
       }
     },
     updateCaller: (state, caller) => {
@@ -205,82 +212,151 @@ export default new Vuex.Store({
     },
     pushCall: (state, call) => {
       state.call.push(call)
+
+      const db = firebase.firestore();
+
+      db.collection("calllog").doc("calllog").collection(new Date().toISOString().slice(0, 10)).add({
+          timestamp: call.timestamp,
+          name: call.name.trim(),
+          number: call.number
+      })
+      .then(function(docRef) {
+          //console.log("Call added to call log in Firebase with ID: ", docRef.id);
+      })
+      .catch(function(error) {
+          console.error("Error adding call to call log in Firebase: ", error);
+      });
+
+      const customerRef = db.collection('customers').doc(call.number.trim());
+
+      customerRef.get()
+        .then(function(doc) {
+          if (doc.exists) {
+            let extraCall = doc.data().called + 1;
+            customerRef.set({
+                called: extraCall
+            }, { merge: true });
+          } else {
+            customerRef.set({name: call.name.trim(), called:1})
+          }
+        })
+        .catch(function(error) {
+          console.error("Error adding customer to customers in Firebase: ", error);
+        });
     },
     setUserFB(state, payload) {
       state.userFB = payload;
     },
     setIsAuthenticatedFB(state, payload) {
-        state.isAuthenticatedFB = payload;
+      state.isAuthenticatedFB = payload;
+    },
+    pushCallWaiting: (state, number) => {
+      state.callWaiting.push(number)
     }
   },
   actions: {
-    agentsBusy ({commit}, agentsBusy){
+    agentsBusy({
+      commit
+    }, agentsBusy) {
       commit('agentsBusy', agentsBusy)
     },
-    agentsOnline ({commit}, agentsOnline){
+    agentsOnline({
+      commit
+    }, agentsOnline) {
       commit('agentsOnline', agentsOnline)
     },
-    callsAbandoned ({commit}, callsAbandoned){
+    callsAbandoned({
+      commit
+    }, callsAbandoned) {
       commit('callsAbandoned', callsAbandoned)
     },
-    callsCompleted ({commit}, callsCompleted){
+    callsCompleted({
+      commit
+    }, callsCompleted) {
       commit('callsCompleted', callsCompleted)
     },
-    callsWaiting ({commit}, callsWaiting){
+    callsWaiting({
+      commit
+    }, callsWaiting) {
       commit('callsWaiting', callsWaiting)
     },
-    authorize ({commit}){
+    authorize({
+      commit
+    }) {
       commit('authorize')
     },
-    addSupport ({commit}){
+    addSupport({
+      commit
+    }) {
       commit('initSupport')
     },
-    updatePresence ({commit}, index, status){
+    updatePresence({
+      commit
+    }, index, status) {
       console.log(index + " " + status)
       commit('updatePresence', index, status)
     },
-    userJoinFB({ commit }, { email, password }) {
+    userJoinFB({
+      commit
+    }, {
+      email,
+      password
+    }) {
       firebase
-          .auth()
-          .createUserWithEmailAndPassword(email, password)
-          .then(user => {
-              commit('setUserFB', user);
-              commit('setIsAuthenticatedFB', true);
-              router.push('/');
-          })
-          .catch(() => {
-              commit('setUserFB', null);
-              commit('setIsAuthenticatedFB', false);
-          });
-    },
-    userLoginFB({ commit }, { email, password }) {
-      firebase
-          .auth()
-          .signInWithEmailAndPassword(email, password)
-          .then(user => {
-              commit('setUserFB', user);
-              commit('setIsAuthenticatedFB', true);
-              router.push('/');
-          })
-          .catch(() => {
-              commit('setUserFB', null);
-              commit('setIsAuthenticatedFB', false);
-          });
-  },
-  userSignOutFB({ commit }) {
-    firebase
         .auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then(user => {
+          commit('setUserFB', user);
+          commit('setIsAuthenticatedFB', true);
+          router.push('/home');
+        })
+        .catch(function (error) {
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          alert(errorCode + ' ' + errorMessage);
+          commit('setUserFB', null);
+          commit('setIsAuthenticatedFB', false);
+        });
+    },
+    userLoginFB({
+      commit
+    }, {
+      email,
+      password
+    }) {
+      firebase
+        .auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        .then(() => {
+          return firebase.auth().signInWithEmailAndPassword(email, password);
+        })
+        .then(user => {
+          commit('setUserFB', user);
+          commit('setIsAuthenticatedFB', true);
+          router.push('/home');
+        })
+        .catch(function (error) {
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          alert(errorCode + ' ' + errorMessage);
+          commit('setUserFB', null);
+          commit('setIsAuthenticatedFB', false);
+        });
+    },
+    userSignOutFB({
+      commit
+    }) {
+      firebase
         .signOut()
         .then(() => {
-            commit('setUserFB', null);
-            commit('setIsAuthenticatedFB', false);
-            router.push('/');
+          commit('setUserFB', null);
+          commit('setIsAuthenticatedFB', false);
+          router.push('/signin');
         })
         .catch(() => {
-            commit('setUserFB', null);
-            commit('setIsAuthenticatedFB', false);
-            router.push('/');
+          commit('setUserFB', null);
+          commit('setIsAuthenticatedFB', false);
+          router.push('/signin');
         });
-  }
+    }
   }
 })

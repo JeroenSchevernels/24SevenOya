@@ -1,5 +1,4 @@
 <template>
-    <v-flex d-flex> 
         <v-card v-bind:style="{ 'background-image': callsBoxGradient}">
             <v-toolbar flat>
                 <v-toolbar-title>Calls today: {{totalCalls}}</v-toolbar-title>
@@ -13,7 +12,6 @@
                 </v-card-text>
             </v-layout>
         </v-card>
-    </v-flex>
 </template>
 
 <script>

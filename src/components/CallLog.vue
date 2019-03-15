@@ -1,22 +1,18 @@
 <template>
-  <v-flex>
     <v-card>
       <v-toolbar flat>
         <v-toolbar-title>Call log DEV</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
       </v-toolbar>
-    </v-card>
-    <v-card style="overflow-y: scroll; height:88vh">
       <v-data-table
         :headers="headers"
         :items="call"
         :search="search"
         item-key="callid"
         hide-actions
-        class="fixed-header"
-      >
-        <!-- class fixed header is commented out in css -->
+        class="scrollTable"
+      > 
         <template slot="items" slot-scope="props">
           <tr>
             <td>{{props.item.time}}</td>
@@ -34,7 +30,6 @@
         >Your search for "{{ search }}" found no results.</v-alert>
       </v-data-table>
     </v-card>
-  </v-flex>
 </template>
 
 <script>
@@ -68,11 +63,12 @@ export default {
         {
           text: "Taken",
           value: "timeTaken"
-        },
-        {
-          text: "Callid",
-          value: "callid"
         }
+        // ,
+        // {
+        //   text: "Callid",
+        //   value: "callid"
+        // }
       ]
     };
   }

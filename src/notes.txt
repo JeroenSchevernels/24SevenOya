@@ -1,0 +1,92 @@
+https://medium.freecodecamp.org/how-to-build-a-spa-using-vue-js-vuex-vuetify-and-firebase-adding-authentication-with-firebase-d9932d1e4365
+
+https://scotch.io/tutorials/getting-started-with-firebase-cloud-firestore-build-a-vue-contact-app
+
+https://www.npmjs.com/package/firebase
+    You can reduce the amount of code your app uses by just including the features you need. The individually installable services are:
+
+    firebase-app - The core firebase client (required).
+    firebase-auth - Firebase Authentication (optional).
+    firebase-firestore - Cloud Firestore (optional).
+
+
+#needed a place to save this
+
+     // for (let id in self.support) {
+                  //   if (self.support[id].status != "BUSY" && self.support[id].id == msg.data.userId) {
+                    //     self.support[id].callid = self.nextCallId;
+                //     self.support[id].originalCallName = originalCallName;
+                //   }
+                // }
+
+                //   if (self.call.length > 0) {
+                  //     if (self.call[self.call.length - 1].number === msg.data.callerId.number) { 
+                    //       // check if phone number is the same as the previous one
+                //       if (new Date().getTime() - self.call[self.call.length - 1].timestamp < 120000) {
+                  //         //less than 2 minutes since last, so we assume same call
+                //         self.call[self.call.length - 1].timestamp = new Date().getTime()
+                //         self.call[self.call.length - 1].time = self.ts2time(new Date().getTime())
+                //       } else {
+                  //         //same number, but longer than 2 minutes ago
+                //         self.updateCall(self, info, msg);
+                //       }
+                //     } else {
+                  //       //previous number not the same as the current // true
+                //       self.updateCall(self, info, msg);
+                //     }
+                //   } else {
+                  //     //no call in list yet
+                //     self.updateCall(self, info, msg);
+                //   }
+                //   //self.updateCall();
+                //   // hangup
+                //   console.log("please make me");
+                //   alert("other status: " + msg.data);
+
+
+
+.table-container {
+  height: 5em;
+}
+.scrollTable table {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  /* width: 100%; */
+}
+.scrollTable table thead {
+  /* head takes the height it requires, 
+    and it's not scaled when table is resized */
+  flex: 0 0 auto;
+  width: calc(100% - 0.9em);
+}
+.scrollTable table tbody {
+  /* body takes all the remaining available space */
+  flex: 1 1 auto;
+  display: block;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.scrollTable table tbody tr {
+  width: 100%;
+}
+.scrollTable table thead,
+.scrollTable table tbody tr {
+  display: table;
+  table-layout: fixed;
+}
+
+
+
+
+
+
+
+
+
+********************************************************************************
+Can't scroll in report table
+Alert in reports --> Better warning/error message
+Report result in Store vuex
+New number report
+If you manually type the URL, you get in a loop

@@ -1,5 +1,4 @@
 <template>
-  <v-flex d-flex>
     <v-card v-bind:style="{ backgroundColor: agentsBoxColor}">
       <v-toolbar flat>
         <v-toolbar-title>Support logged in: {{agentsOnline}}</v-toolbar-title>
@@ -45,7 +44,6 @@
         </v-flex>
       </v-layout>
     </v-card>
-  </v-flex>
 </template>
 
 <script>
