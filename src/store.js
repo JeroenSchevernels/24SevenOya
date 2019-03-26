@@ -25,7 +25,6 @@ export default new Vuex.Store({
   state: {
     callId: 0,
     agents: [],
-    callswaiting: [],
     callsTaken: [],
     support: [],
     showMenu: false,
@@ -113,7 +112,7 @@ export default new Vuex.Store({
   },
   mutations: {
     callWaiting(state, call) {
-      state.callswaiting.push(call)
+      state.callWaiting.push(call)
     },
     callTaken(state, agent) {
 
@@ -131,20 +130,19 @@ export default new Vuex.Store({
       let support = []
       support.push(new Support(21102, "Adam"))
       support.push(new Support(3199, "Adrian"))
-      support.push(new Support(3215, "Alexander", "./src/img/am.png"))
-      support.push(new Support(2944, "Andreas", "./src/img/and.png"))
-      support.push(new Support(20714, "Eirik", "./src/img/el.png"))
+      support.push(new Support(2944, "Andreas", "img/and.png"))
+      support.push(new Support(20714, "Eirik", "img/el.png"))
       support.push(new Support(20321, "Guro"))
       support.push(new Support(19608, "Hanne"))
       support.push(new Support(3208, "Henrik"))
       support.push(new Support(2947, "Iselin"))
-      support.push(new Support(21101, "Jeroen", "./src/img/jss.png"))
-      support.push(new Support(5546, "Joakim", "./src/img/jll.png"))
+      support.push(new Support(21101, "Jeroen", "img/jss.png"))
+      support.push(new Support(5546, "Joakim", "img/jll.png"))
       support.push(new Support(2943, "Kjerstin"))
-      support.push(new Support(21100, "Konrad", "./src/img/kga.png"))
-      support.push(new Support(16518, "Petter", "./src/img/pb.png"))
+      support.push(new Support(21100, "Konrad", "img/kga.png"))
+      support.push(new Support(16518, "Petter", "img/pb.png"))
       support.push(new Support(4958, "Sonja"))
-      support.push(new Support(3184, "Terje", "./src/img/tl.png"))
+      support.push(new Support(3184, "Terje", "img/tl.png"))
       support.push(new Support(17333, "Truls"))
 
       state.support = support
@@ -174,31 +172,26 @@ export default new Vuex.Store({
         if (event.state != agent.status) {
           let previous = agent.status;
           agent.status = event.state
-          console.log(previous + ' --> ' + event.state)
           if ((previous == 'RINGING') && (agent.status == 'BUSY')) {
             //if (agent.originalCallName == "Support NO") {
-              console.log(agent.name + " statusupdate")
-              agent.incomingCalls += 1
-              console.log(1)
-              let indexcall = state.call.lastIndexOf(state.callWaiting.shift())
-              console.log(2)
-
-              let c = state.call[indexcall]
-              console.log(3)
-
-              c.status = 'taken'
-              c.answered = agent.name
-              c.timestampAnswered = new Date().getTime()
-              c.timeTaken = (new Date().getTime() - c.timestamp) / 1000
-              // c.callTaken = agent.name
-              console.log(4)
-
-              state.call[indexcall] = c
-              console.log(state.call)
-              // state.callId++
+              let thisTime = new Date().getTime()
+              let lastCall = state.callWaiting.shift()
+              let indexcall = state.call.map( x => { return x.number }).lastIndexOf(lastCall)
+              console.log(state.callWaiting)
+              // if taken prob not right
+              if(indexcall == -1){
+                agent.outgoingCalls += 1 
+              }else{
+                agent.incomingCalls += 1
+                let c = state.call[indexcall]
+                c.status = 'taken'
+                c.answered = agent.name
+                c.timestampAnswered = thisTime
+                c.timeTaken = (thisTime - c.timestamp) / 1000
+                state.call.splice(indexcall, 1, c)
+              }
             // }
           } else {
-            // state.support[index].outgoingCalls += 1 
           }
         }
 

@@ -1,17 +1,17 @@
 <template>
-    <v-card>
+    <v-card >
       <v-toolbar flat>
-        <v-toolbar-title>Call log DEV</v-toolbar-title>
+        <v-toolbar-title>Call log</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
       </v-toolbar>
       <v-data-table
+        :input="call"
         :headers="headers"
         :items="call"
         :search="search"
-        item-key="callid"
+        item-key="id"
         hide-actions
-        class="scrollTable"
       > 
         <template slot="items" slot-scope="props">
           <tr>
@@ -38,10 +38,26 @@ import { mapState, mapGetters, mapMutations } from "vuex";
 export default {
   name: "CallLog",
   computed: {
-    ...mapGetters(["call"])
+    call() {
+      return this.$store.getters.call
+    }
+    // ...mapGetters(["call"])
+    // ...mapState(['call'])
+  },
+  watch: {
+    call (newCall, oldCall){
+      var self = this
+      if(newCall.status != oldCall.status){
+        self.forceRerender()
+      }
+    }
   },
   data() {
     return {
+      windowSize: {
+        x:0,
+        y:0
+      },
       search: "",
       headers: [
         {
@@ -60,17 +76,18 @@ export default {
           text: "Answered by",
           value: "answered"
         },
+        // },
         {
           text: "Taken",
           value: "timeTaken"
         }
         // ,
         // {
-        //   text: "Callid",
+          //   text: "Callid",
         //   value: "callid"
         // }
       ]
-    };
+    }
   }
 };
 </script>

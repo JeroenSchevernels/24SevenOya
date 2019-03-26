@@ -9,6 +9,14 @@
             <v-divider></v-divider>
             <v-list-tile>
               <v-list-tile-content>
+                <v-list-tile-title>v0.43</v-list-tile-title>
+                <v-list-tile-sub-title>Report added to see how many times each number calls</v-list-tile-sub-title>
+              </v-list-tile-content>
+            </v-list-tile>
+
+            <v-divider></v-divider>
+            <v-list-tile>
+              <v-list-tile-content>
                 <v-list-tile-title>v0.42</v-list-tile-title>
                 <v-list-tile-sub-title>Toolbar removed in favor of navigation drawer</v-list-tile-sub-title>
               </v-list-tile-content>

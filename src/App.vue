@@ -5,6 +5,11 @@
       <v-navigation-drawer app dark v-if="isAuthenticatedFB">
         <v-layout column fill-height>
           <v-list>
+            <v-list-tile>
+              <v-list-tile-title class="title">
+                24SOya
+              </v-list-tile-title>
+            </v-list-tile>
             <v-list-tile to="/home">
               <v-list-tile-action>
                 <v-icon large></v-icon>
@@ -14,10 +19,10 @@
                 <v-icon large>dashboard</v-icon>
               </v-list-tile-action>
             </v-list-tile>
-            <v-list-group no-action sub-group value="true">
+            <v-list-group no-action sub-group v-model="expandReport">
               <template v-slot:activator>
                 <v-list-tile>
-                  <v-list-tile-title>Reports</v-list-tile-title>
+                  <v-list-tile-title>Reports (alpha)</v-list-tile-title>
                   <v-list-tile-action>
                     <v-icon large>assessment</v-icon>
                   </v-list-tile-action>
@@ -26,7 +31,7 @@
               <v-list-tile to="/reportcalllog">
                 <v-list-tile-title>Historic call log</v-list-tile-title>
                 <v-list-tile-action>
-                  <v-icon>assignment</v-icon>
+                  <v-icon>assignment</v-icon> 
                 </v-list-tile-action>
               </v-list-tile>
               <v-list-tile to="/reportcustomers">
@@ -36,6 +41,12 @@
                 </v-list-tile-action>
               </v-list-tile>
             </v-list-group>
+            <v-list-tile v-if="dev" :href="getLostCalls" target="blank">
+              <v-list-tile-title>Lost calls</v-list-tile-title>
+              <v-list-tile-action>
+                <v-icon large>link</v-icon>
+              </v-list-tile-action>
+            </v-list-tile>
           </v-list>
 
           <v-spacer></v-spacer>
@@ -46,7 +57,7 @@
                 <v-icon>info</v-icon>
               </v-list-tile-action>
             </v-list-tile>
-            <v-list-group no-action sub-group value="true">
+            <v-list-group no-action sub-group v-model="expandLogin">
               <template v-slot:activator>
                 <v-list-tile>
                   <v-list-tile-title>{{$store.state.userFB.user.email}}</v-list-tile-title>
@@ -66,12 +77,13 @@
         </v-layout>
       </v-navigation-drawer>
       <v-content>
-        <v-container fluid grid-list-md height>
+        <v-container fluid grid-list-md>
           <router-view></router-view>
         </v-container>
       </v-content>
     </v-app>
   </div>
+  
 </template>
 
 <script>
@@ -82,8 +94,11 @@ export default {
   components: {},
   data() {
     return {
+      expandLogin: false,
+      expandReport: false,
+      dev: false,
       dark: false,
-      showMenu: false,
+      showMenu: true,
       showCallLog: true,
       showCaller: true,
       showWaiting: true,
@@ -92,6 +107,10 @@ export default {
       precallid: "",
       //callerNum: [],
       nextCallId: 1,
+      supportNumbers: [
+        '+4724700000',
+        '<unknown>'
+      ],
       // call: [
       //   // { // testing purpose and explanation of existing fields
       //   // 	time: '09:15',
@@ -164,6 +183,7 @@ export default {
       });
 
       Oyatel.Events.subscribe("/events/call", function(msg) {
+        console.dir(msg.data);
         // Support NO in
         // Partner norge out or others out
         //add queue filter
@@ -191,11 +211,8 @@ export default {
 
           if (msg.data.direction === "in") {
             if (self.callWaiting.some(el => el == msg.data.callerId.number)) {
-              console.log("duplicate");
+              //console.log("duplicate");
             } else {
-              self.$store.commit("pushCallWaiting", msg.data.callerId.number);
-              //self.callerNum.push(msg.data.callerId.callerNum)
-
               let info = {
                 userid: "",
                 name: "",
@@ -207,42 +224,51 @@ export default {
                 queue: ""
               };
 
-              if (msg.data.event == "ring") {
-                // check local data first?
-                Oyatel.Call.numberInfo(msg.data.callerId.number, function(
-                  data
-                ) {
-                  if (data.matches.length > 0) {
-                    //console.log(data.matches.length + " amount of matches - app.vue Oyatel.Call.numberInfo")
-                    if (data.matches[0].name != null) {
-                      info.name = data.matches[0].name;
-                    }
-                    if (data.matches[0].address != null) {
-                      info.address = data.matches[0].address;
-                    }
-                    if (data.matches[0].zipcode != null) {
-                      info.zipcode = data.matches[0].zipcode;
-                    }
-                    if (data.matches[0].city != null) {
-                      info.city = data.matches[0].city;
-                    }
-                  }
-                  if (data.location != null) {
-                    info.country = data.location;
-                  }
-                  // all calls
-                  // if (msg.data.userId == self.$store.currentUser.id) {
-                  info.number = msg.data.callerId.number;
-                  // info.userid = msg.data.userId
+              if (self.supportNumbers.findIndex(e => e == msg.data.callerId.number) == -1){
+                self.$store.commit("pushCallWaiting", msg.data.callerId.number)
 
-                  self.$store.commit("updateCaller", info);
-                  self.updateCall(self, info, msg);
-                  // }
-                });
-              } else if (msg.data.event == "hangup") {
-                // console.log("hangup")
-              } else {
-                console.log("other status " + msg.data);
+                if (msg.data.event == "ring") {
+                  // check local data first?
+                  // console.log(supportNumbers.findIndex(msg.data.callerId.number))
+                  // if(supportNumbers.findIndex(msg.data.callerId.number) == -1){
+                  Oyatel.Call.numberInfo(msg.data.callerId.number, function(data) {
+                    if (data.matches.length > 0) {
+                      //console.log(data.matches.length + " amount of matches - app.vue Oyatel.Call.numberInfo")
+                      if (data.matches[0].name != null) {
+                        info.name = data.matches[0].name;
+                      }
+                      if (data.matches[0].address != null) {
+                        info.address = data.matches[0].address;
+                      }
+                      if (data.matches[0].zipcode != null) {
+                        info.zipcode = data.matches[0].zipcode;
+                      }
+                      if (data.matches[0].city != null) {
+                        info.city = data.matches[0].city;
+                      }
+                    }
+                    if (data.location != null) {
+                      info.country = data.location;
+                    }
+                    // all calls
+                    // if (msg.data.userId == self.$store.currentUser.id) {
+                    info.number = msg.data.callerId.number;
+                    // info.userid = msg.data.userId
+
+                    self.$store.commit("updateCaller", info);
+                    self.updateCall(self, info, msg);
+                    // }
+                  });
+                } else if (msg.data.event == "hangup") {
+                  // console.log("hangup")
+                } else {
+                  console.log("other status " + msg.data);
+                }
+              // }else{
+              //   console.log("Someone called out")
+              // }
+              }else{
+                console.log("does exist in the array ->")
               }
             }
           }
@@ -287,6 +313,17 @@ export default {
   },
   watch: {},
   computed: {
+    getLostCalls(){
+      let baseURL = "https://webapp.oyatel.com/stats?timeframe=week&date_start="
+      let date = new Date
+      let year = date.getFullYear()
+      let month = date.getMonth() + 1
+      let day = date.getDate()
+      let queue = "01"
+      let seconds = "120"
+      
+      return baseURL + year + "-" + month + "-" + day + "&queue=" + queue + "&answer_seconds=" + seconds
+    },
     isAuthenticatedFB() {
       return this.$store.getters.isAuthenticatedFB;
     },

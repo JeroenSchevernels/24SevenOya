@@ -45,37 +45,12 @@ https://www.npmjs.com/package/firebase
 
 
 
-.table-container {
-  height: 5em;
-}
-.scrollTable table {
-  display: flex;
-  flex-flow: column;
-  height: 100%;
-  /* width: 100%; */
-}
-.scrollTable table thead {
-  /* head takes the height it requires, 
-    and it's not scaled when table is resized */
-  flex: 0 0 auto;
-  width: calc(100% - 0.9em);
-}
-.scrollTable table tbody {
-  /* body takes all the remaining available space */
-  flex: 1 1 auto;
-  display: block;
-  overflow-y: scroll;
-  overflow-x: hidden;
-}
-.scrollTable table tbody tr {
-  width: 100%;
-}
-.scrollTable table thead,
-.scrollTable table tbody tr {
-  display: table;
-  table-layout: fixed;
-}
 
+
+
+
+
+http://michaelnthiessen.com/force-re-render/
 
 
 
@@ -85,8 +60,19 @@ https://www.npmjs.com/package/firebase
 
 
 ********************************************************************************
-Can't scroll in report table
-Alert in reports --> Better warning/error message
 Report result in Store vuex
-New number report
-If you manually type the URL, you get in a loop
+
+If you manually type the URL, you get in a loop  > Do we need history mode instead of hash mode for router?
+
+More data in DB and reports! (GDPR)
+
+Hamburger menu on smaller widths
+
+Selskap  > Ansatt > answered calls, #calls, #different days called, call time, date range
+
+Time in queue?
+
+call log doesn't stop. no scroll
+
+
+s7XjboUvoWruSEBasrw4mFwzzAwnUMK8AvBI5bKv --> DO NOT DELETE

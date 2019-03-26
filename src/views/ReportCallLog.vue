@@ -1,6 +1,6 @@
 <template>
   <v-layout column>
-    <v-flex>
+    <v-flex xs1>
       <v-card>
         <v-card-actions>
           <v-spacer></v-spacer>   
@@ -36,12 +36,12 @@
         </v-card-actions>
       </v-card>     
     </v-flex>
-    <v-flex>
+    <v-flex xs10>
       <v-card>
+        <v-alert dismissible v-model="alert" type="warning">No data found for that date!</v-alert>
         <v-data-table 
             :headers="headers" 
             :items="calls"
-            class="scrollTable"
             hide-actions>
           <template v-slot:items="props">
             <tr>
@@ -67,6 +67,7 @@ export default {
   data: () => ({
     date: new Date().toISOString().substr(0, 10),
     menu: false,
+    alert: false,
     headers: [
       { text: "Time", value: "time" },
       { text: "Number", value: "number" },
@@ -97,7 +98,7 @@ export default {
               });
             });
           } else {
-            alert("No data found for that date!");
+            self.alert = true;
           }
         });
     },
