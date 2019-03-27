@@ -111,6 +111,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    pushOutGoing(state){
+      state.outgoingCallArray.push("1")
+    },
     callWaiting(state, call) {
       state.callWaiting.push(call)
     },
@@ -178,8 +181,10 @@ export default new Vuex.Store({
               let lastCall = state.callWaiting.shift()
               let indexcall = state.call.map( x => { return x.number }).lastIndexOf(lastCall)
               console.log(state.callWaiting)
+
               // if taken prob not right
               if(indexcall == -1){
+                state.outgoingCallArray.pop()
                 agent.outgoingCalls += 1 
               }else{
                 agent.incomingCalls += 1

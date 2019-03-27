@@ -268,6 +268,7 @@ export default {
               //   console.log("Someone called out")
               // }
               }else{
+                self.$store.commit("outgoingCallsArray")
                 console.log("does exist in the array ->")
               }
             }
