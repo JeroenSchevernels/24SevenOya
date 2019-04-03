@@ -111,7 +111,7 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    pushOutGoing(state){
+    pushOutgoing(state){
       state.outgoingCallArray.push("1")
     },
     callWaiting(state, call) {
@@ -133,19 +133,19 @@ export default new Vuex.Store({
       let support = []
       support.push(new Support(21102, "Adam"))
       support.push(new Support(3199, "Adrian"))
-      support.push(new Support(2944, "Andreas", "img/and.png"))
-      support.push(new Support(20714, "Eirik", "img/el.png"))
+      support.push(new Support(2944, "Andreas", "./src/img/and.png"))
+      support.push(new Support(20714, "Eirik", "./src/img/el.png"))
       support.push(new Support(20321, "Guro"))
       support.push(new Support(19608, "Hanne"))
       support.push(new Support(3208, "Henrik"))
       support.push(new Support(2947, "Iselin"))
-      support.push(new Support(21101, "Jeroen", "img/jss.png"))
-      support.push(new Support(5546, "Joakim", "img/jll.png"))
+      support.push(new Support(21101, "Jeroen", "./src/img/jss.png"))
+      support.push(new Support(5546, "Joakim", "./src/img/jll.png"))
       support.push(new Support(2943, "Kjerstin"))
-      support.push(new Support(21100, "Konrad", "img/kga.png"))
-      support.push(new Support(16518, "Petter", "img/pb.png"))
+      support.push(new Support(21100, "Konrad", "./src/img/kga.png"))
+      support.push(new Support(16518, "Petter", "./src/img/pb.png"))
       support.push(new Support(4958, "Sonja"))
-      support.push(new Support(3184, "Terje", "img/tl.png"))
+      support.push(new Support(3184, "Terje", "./src/img/tl.png"))
       support.push(new Support(17333, "Truls"))
 
       state.support = support
@@ -212,7 +212,7 @@ export default new Vuex.Store({
       state.call.push(call)
 
       const db = firebase.firestore();
-
+      
       db.collection("calllog").doc("calllog").collection(new Date().toISOString().slice(0, 10)).add({
           timestamp: call.timestamp,
           name: call.name.trim(),

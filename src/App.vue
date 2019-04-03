@@ -260,7 +260,8 @@ export default {
                     // }
                   });
                 } else if (msg.data.event == "hangup") {
-                  // console.log("hangup")
+                  console.log("hangup")
+                  console.log(msg.data.callerId.number)
                 } else {
                   console.log("other status " + msg.data);
                 }
@@ -268,7 +269,7 @@ export default {
               //   console.log("Someone called out")
               // }
               }else{
-                self.$store.commit("outgoingCallsArray")
+                self.$store.commit("pushOutgoing")
                 console.log("does exist in the array ->")
               }
             }
