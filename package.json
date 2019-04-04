@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf dist/main.js dist/index.html",
     "build": "npm run clean && webpack --mode production",
     "serve": "webpack-dev-server --mode development --history-api-fallback"
   },
