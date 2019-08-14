@@ -5,6 +5,14 @@
         <v-flex xs12 sm6 offset-sm3>
           <v-list two-line>
             <v-subheader>Changelog</v-subheader>
+            
+            <v-divider></v-divider>
+            <v-list-tile>
+              <v-list-tile-content>
+                <v-list-tile-title>v0.45</v-list-tile-title>
+                <v-list-tile-sub-title>Call log</v-list-tile-sub-title>
+              </v-list-tile-content>
+            </v-list-tile>
 
             <v-divider></v-divider>
             <v-list-tile>

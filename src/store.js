@@ -61,7 +61,7 @@ export default new Vuex.Store({
   },
   getters: {
     supportOnline: state => {
-      return state.support.filter(agent => agent.status != "UNAVAILABLE")
+      return state.support.filter(agent => agent.status != "UNAVAILABLE" && agent.incomingCalls > 0)
     },
     documentTitle: state => {
       return 'Wait: ' + state.callsWaiting + ' Busy: ' + state.agentsBusy + '/' + state.agentsOnline
@@ -135,14 +135,17 @@ export default new Vuex.Store({
       support.push(new Support(3199, "Adrian"))
       support.push(new Support(2944, "Andreas", "./src/img/and.png"))
       support.push(new Support(20714, "Eirik", "./src/img/el.png"))
+      
       support.push(new Support(20321, "Guro"))
       support.push(new Support(19608, "Hanne"))
       support.push(new Support(3208, "Henrik"))
       support.push(new Support(2947, "Iselin"))
+
       support.push(new Support(21101, "Jeroen", "./src/img/jss.png"))
       support.push(new Support(5546, "Joakim", "./src/img/jll.png"))
       support.push(new Support(2943, "Kjerstin"))
       support.push(new Support(21100, "Konrad", "./src/img/kga.png"))
+
       support.push(new Support(16518, "Petter", "./src/img/pb.png"))
       support.push(new Support(4958, "Sonja"))
       support.push(new Support(3184, "Terje", "./src/img/tl.png"))
@@ -355,6 +358,16 @@ export default new Vuex.Store({
           commit('setIsAuthenticatedFB', false);
           router.push('/signin');
         });
-    }
+    },
+    searchInZendesk({
+      commit
+    }){
+      // search in the zendesk for the last cases a user have
+    },
+    submitRequest({
+      commit
+    }){
+
+    },
   }
 })
