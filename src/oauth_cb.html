@@ -1,44 +1,45 @@
 <html>
+
 <head>
-<meta http-equiv="Access-Control-Allow-Origin" content="*">
-<script type="text/javascript">
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<script type="text/javascript">
+		function getUrlVars() {
+			var vars = {};
+			var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+				vars[key] = value;
+			});
+			return vars;
+		}
 
-function getUrlVars() {
-	var vars = {};
-	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-		vars[key] = value;
-	});
-	return vars;
-}
+		function checkReponse() {
+			var urlVars = getUrlVars();
+			if (urlVars['error']) {
+				window.opener.Oyatel.authorizationFailed(urlVars['error']);
+				window.close();
+				return;
+			}
 
-function checkReponse() {
-	var urlVars = getUrlVars();
-	if (urlVars['error']) {
-		window.opener.Oyatel.authorizationFailed(urlVars['error']);
-		window.close();
-		return;
-	}
-	
-	// do something else...
-	var fragment = unescape(self.document.location.hash.substring(1));
-	
-	// now get token, expire etc. from fragment
-	var parts = /^access_token=(.*?)&expires_in=(.*?)&scope=([^&]*).*$/.exec(fragment);
-	var access_token = parts[1];
-	var expires_in = parts[2];
-	var scope = parts[3];
-	
-	// now set cookie
-	
-	window.opener.Oyatel.wasAuthorized(access_token, expires_in);
-	window.close();
-}
+			// do something else...
+			var fragment = unescape(self.document.location.hash.substring(1));
 
-checkReponse();
+			// now get token, expire etc. from fragment
+			var parts = /^access_token=(.*?)&expires_in=(.*?)&scope=([^&]*).*$/.exec(fragment);
+			var access_token = parts[1];
+			var expires_in = parts[2];
+			var scope = parts[3];
 
-</script>
+			// now set cookie
+
+			window.opener.Oyatel.wasAuthorized(access_token, expires_in);
+			window.close();
+		}
+
+		checkReponse();
+	</script>
 </head>
+
 <body>
 
 </body>
+
 </html>

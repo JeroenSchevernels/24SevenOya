@@ -1,122 +1,101 @@
 <template>
   <div class="changelog">
-    <!-- <v-container bg fill-height grid-list-md text-xs-center> -->
-      <v-layout row wrap align-center>
-        <v-flex xs12 sm6 offset-sm3>
-          <v-list two-line>
-            <v-subheader>Changelog</v-subheader>
-            
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.45</v-list-tile-title>
-                <v-list-tile-sub-title>Call log</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+    <v-timeline align-top dense dark>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.44</v-list-tile-title>
-                <v-list-tile-sub-title>Jeroen.netlify build, dist publish from git</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.45</v-card-title>
+          <v-card-text>New design and trying out new layout</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.43</v-list-tile-title>
-                <v-list-tile-sub-title>Report added to see how many times each number calls</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.44</v-card-title>
+          <v-card-text>Jeroen.netlify build, dist publish from git</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.42</v-list-tile-title>
-                <v-list-tile-sub-title>Toolbar removed in favor of navigation drawer</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.43</v-card-title>
+          <v-card-text>Report added to see how many times each number calls</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.41</v-list-tile-title>
-                <v-list-tile-sub-title>Amount of calls per number gets stored in Firebase</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.42</v-card-title>
+          <v-card-text>Toolbar removed in favor of navigation drawer</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.40</v-list-tile-title>
-                <v-list-tile-sub-title>Report added to see call log from past dates</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.41</v-card-title>
+          <v-card-text>Amount of calls per number gets stored in Firebase</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.39</v-list-tile-title>
-                <v-list-tile-sub-title>Only bot saves to Firebase and calllog seperated per day</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.40</v-card-title>
+          <v-card-text>Report added to see call log from past dates</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.38</v-list-tile-title>
-                <v-list-tile-sub-title>
-                  First steps towards saving call log in Firebase.<br/>
-                  At the moment everything gets saved multiple times (1 per logged in user)
-                </v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.39</v-card-title>
+          <v-card-text>Only bot saves to Firebase and calllog seperated per day</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.37</v-list-tile-title>
-                <v-list-tile-sub-title>Firebase Authentication</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.36</v-list-tile-title>
-                <v-list-tile-sub-title>Seperated CallsToday, Waiting, CallerInfo, AgentsOnline &amp; CallLog to components</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.38</v-card-title>
+          <v-card-text>
+            First steps towards saving call log in Firebase.<br />
+            At the moment everything gets saved multiple times (1 per logged in user)
+          </v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.35</v-list-tile-title>
-                <v-list-tile-sub-title>We are using VueX : Call log is coming later</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.37</v-card-title>
+          <v-card-text>Firebase Authentication</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.12</v-list-tile-title>
-                <v-list-tile-sub-title>Added switches</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.36</v-card-title>
+          <v-card-text>Seperated CallsToday, Waiting, CallerInfo, AgentsOnline &amp; CallLog to components</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-            <v-divider></v-divider>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>v0.11</v-list-tile-title>
-                <v-list-tile-sub-title>Added a changelog</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.35</v-card-title>
+          <v-card-text>We are using VueX : Call log is coming later</v-card-text>
+        </v-card>
+      </v-timeline-item>
 
-          </v-list>
-        </v-flex>
-      </v-layout>
-    <!-- </v-container> -->
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.12</v-card-title>
+          <v-card-text>Added switches</v-card-text>
+        </v-card>
+      </v-timeline-item>
+
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.11</v-card-title>
+          <v-card-text>Added a changelog</v-card-text>
+        </v-card>
+      </v-timeline-item>
+
+    </v-timeline>
   </div>
 </template>
- 

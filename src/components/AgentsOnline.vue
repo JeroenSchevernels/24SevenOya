@@ -1,49 +1,52 @@
 <template>
-    <v-card v-bind:style="{ backgroundColor: agentsBoxColor}">
-      <v-toolbar flat>
-        <v-toolbar-title>Support logged in: {{agentsOnline}}</v-toolbar-title>
-      </v-toolbar>
-      <v-layout row>
-        <v-card-text class="text-xs-left">
+  <v-card min-height="100%" v-bind:style="{ backgroundColor: agentsBoxColor}">
+    <v-toolbar flat dark>
+      <v-toolbar-title>Support logged in: {{agentsOnline}}</v-toolbar-title>
+    </v-toolbar>
+    <v-row>
+      <v-col sm="6">
+        <v-card-text class="text-sm-left">
           <span class="display-3">
             <v-icon x-large left color="green">person_outline</v-icon>
             {{agentsAvailable}}
           </span>
         </v-card-text>
-        <v-card-text class="text-xs-right">
+      </v-col>
+      <v-col sm="6">
+        <v-card-text class="text-sm-right">
           <span class="display-3">
             {{agentsBusy}}
             <v-icon x-large right color="red">person</v-icon>
           </span>
         </v-card-text>
-      </v-layout>
-      <v-layout row>
-        <v-flex>
-          <div class="text-xs-center">
-            <v-chip
-              v-for="agent in supportOnline"
-              v-bind:class="agent.status"
-              :key="agent.id"
-              @click="agent.details = !agent.details"
+      </v-col>
+      <v-col sm="12">
+        <div column class="text-center">
+          <v-chip
+            pill
+            v-for="agent in supportOnline"
+            v-bind:class="agent.status"
+            :key="agent.id"
+            @click="agent.details = !agent.details"
+          >
+            <v-avatar left v-if="agent.avatar != ''">
+              <img :src="agent.avatar">
+            </v-avatar>
+            {{ agent.name }} : {{ agent.outgoingCalls + agent.incomingCalls }}
+            <span
+              v-if="agent.details"
+              class="grey--text text--darken-2"
             >
-              <v-avatar v-if="agent.avatar != ''">
-                <img :src="agent.avatar">
-              </v-avatar>
-              {{ agent.name }} : {{ agent.outgoingCalls + agent.incomingCalls }}
-              <span
-                v-if="agent.details"
-                class="grey--text text--darken-2"
-              >
-                <v-icon small>call_received</v-icon>
-                {{agent.incomingCalls}}
-                <v-icon small>call_made</v-icon>
-                {{agent.outgoingCalls}}
-              </span>
-            </v-chip>
-          </div>
-        </v-flex>
-      </v-layout>
-    </v-card>
+              <v-icon small>call_received</v-icon>
+              {{agent.incomingCalls}}
+              <v-icon small>call_made</v-icon>
+              {{agent.outgoingCalls}}
+            </span>
+          </v-chip>
+        </div>
+      </v-col>
+    </v-row>
+  </v-card>
 </template>
 
 <script>

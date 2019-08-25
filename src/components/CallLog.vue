@@ -1,6 +1,6 @@
 <template>
     <v-card >
-      <v-toolbar flat>
+      <v-toolbar flat dark>
         <v-toolbar-title>Call log</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
@@ -10,17 +10,21 @@
         :headers="headers"
         :items="call"
         :search="search"
-        item-key="id"
-        hide-actions
+        height="85vh"
+        fixed-header
+        disable-pagination
+        hide-default-footer
       > 
-        <template slot="items" slot-scope="props">
-          <tr>
-            <td>{{props.item.time}}</td>
-            <td>{{props.item.number}}</td>
-            <td>{{props.item.name}}</td>
-            <td>{{props.item.answered}}</td>
-            <td>{{props.item.timeTaken}}</td>
-          </tr>
+        <template v-slot:body="{ items }">
+          <tbody>
+            <tr v-for="item in items" :key="item.id">
+              <td>{{item.time}}</td>
+              <td>{{item.number}}</td>
+              <td>{{item.name}}</td>
+              <td>{{item.answered}}</td>
+              <!-- <td>{{item.timeTaken}}</td> -->
+            </tr>
+          </tbody>
         </template>
         <v-alert
           slot="no-results"
@@ -33,16 +37,12 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from "vuex";
-
 export default {
   name: "CallLog",
   computed: {
     call() {
       return this.$store.getters.call
     }
-    // ...mapGetters(["call"])
-    // ...mapState(['call'])
   },
   watch: {
     call (newCall, oldCall){
@@ -73,18 +73,12 @@ export default {
           value: "name"
         },
         {
-          text: "Answered by",
+          text: "Agent",
           value: "answered"
         },
-        // },
-        {
-          text: "Taken",
-          value: "timeTaken"
-        }
-        // ,
         // {
-          //   text: "Callid",
-        //   value: "callid"
+        //   text: "Taken",
+        //   value: "timeTaken"
         // }
       ]
     }

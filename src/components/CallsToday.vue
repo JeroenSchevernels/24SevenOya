@@ -1,17 +1,21 @@
 <template>
-        <v-card v-bind:style="{ 'background-image': callsBoxGradient}">
-            <v-toolbar flat>
-                <v-toolbar-title>Calls today: {{totalCalls}}</v-toolbar-title>
-            </v-toolbar>
-            <v-layout row>
-                <v-card-text class="text-xs-left display-3">
+    <v-card min-height="100%" v-bind:style="{ 'background-image': callsBoxGradient}">
+        <v-toolbar flat dark>
+            <v-toolbar-title>Calls today: {{totalCalls}}</v-toolbar-title>
+        </v-toolbar>
+        <v-row>
+            <v-col sm="6">
+                <v-card-text class="text-sm-left display-3">
                     <v-icon x-large left color="green">call</v-icon>{{callsCompleted}}
                 </v-card-text>
-                <v-card-text class="text-xs-right display-3">{{callsAbandoned}}
+            </v-col>
+            <v-col sm="6">
+                <v-card-text class="text-sm-right display-3">{{callsAbandoned}}
                     <v-icon x-large right color="red">call_missed</v-icon>
                 </v-card-text>
-            </v-layout>
-        </v-card>
+            </v-col>
+        </v-row>
+    </v-card>
 </template>
 
 <script>

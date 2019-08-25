@@ -1,35 +1,16 @@
 import Vue from 'vue'
 import App from './App.vue'
-import Vuetify from "vuetify"
-import 'vuetify/dist/vuetify.min.css'
-import Clipboard from 'v-clipboard'
-import router from './router'
+import vuetify from './plugins/vuetify'
+import clipboard from 'v-clipboard'
 import store from './store'
+import router from './router'
 
-var firebase = require('firebase/app');
-require('firebase/auth');
-require("firebase/firestore");
-
-const config = {
-    apiKey: "AIzaSyD6M6kvGgdlW5LP8yJtbMkpbplfWE-seik",
-    authDomain: "soya-f03e7.firebaseapp.com",
-    databaseURL: "https://soya-f03e7.firebaseio.com",
-    projectId: "soya-f03e7",
-    //storageBucket: "soya-f03e7.appspot.com",
-    //messagingSenderId: "553226976892"
-};
-
-firebase.initializeApp(config);
-
-Vue.use(Clipboard)
+Vue.use(clipboard)
 Vue.config.productionTip = false
-Vue.use(Vuetify)
-
-Vue.prototype.$firebase = firebase;
 
 new Vue({
-  el: '#app',
+  vuetify,
   router,
   store,
-  render: h => h(App)
-});
+  render: function (h) { return h(App) }
+}).$mount('#app')
