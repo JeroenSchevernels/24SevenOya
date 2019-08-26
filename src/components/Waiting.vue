@@ -5,10 +5,12 @@
         Waiting
       </v-toolbar-title>
     </v-toolbar>
+    <v-row>
     <v-card-text class="text-sm-center display-3">
-      {{callsWaiting}}
+      <span>{{callsWaiting}}</span>
       <v-icon v-if="callsWaiting > 0" x-large color="red">ring_volume</v-icon>
     </v-card-text>
+    </v-row>
   </v-card>
 </template>
 

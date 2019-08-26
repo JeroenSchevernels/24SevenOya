@@ -33,6 +33,7 @@ FIX:
 *   Layout: Just been configured to work on vuetify v2.0
 *   Calllog
 *   Oyatel API
+*   agents space between // css not sure if best approach
 
 TODO:
 **********

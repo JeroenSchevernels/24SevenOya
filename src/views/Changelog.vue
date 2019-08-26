@@ -1,7 +1,12 @@
 <template>
   <div class="changelog">
     <v-timeline align-top dense dark>
-
+      <v-timeline-item>
+        <v-card>
+          <v-card-title>v.46</v-card-title>
+          <v-card-text>Gray color on the text for waiting and caller info is corrected. Document title is working as before. Space aroud the agent chips</v-card-text>
+        </v-card>
+      </v-timeline-item>
       <v-timeline-item small>
         <v-card>
           <v-card-title>v0.45</v-card-title>

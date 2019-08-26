@@ -9,17 +9,21 @@
                 <v-icon large>assignment</v-icon>
             </v-btn>
         </v-toolbar>
-        <v-card-text>
-            <span class="headline">
-                    <v-icon v-if="caller.number!=''" small>phone</v-icon> {{caller.number}}
-            </span>
-            <span class="headline">
-                    <v-icon v-if="caller.name.trim()!=''" small>business</v-icon> {{caller.name}}
-                </span><br/>
-            <span>{{caller.address}}</span><br />
-            <span>{{caller.zipcode}}&nbsp;{{caller.city}}</span><br />
-            <span>{{caller.country}}</span>
-        </v-card-text>
+        <v-row>
+            <v-col>
+                <v-card-text>
+                    <span class="headline">
+                            <v-icon v-if="caller.number!=''" small>phone</v-icon> {{caller.number}}
+                    </span>
+                    <span class="headline">
+                            <v-icon v-if="caller.name.trim()!=''" small>business</v-icon> {{caller.name}}
+                        </span><br/>
+                    <span>{{caller.address}}</span><br />
+                    <span>{{caller.zipcode}}&nbsp;{{caller.city}}</span><br />
+                    <span>{{caller.country}}</span>
+                </v-card-text>
+            </v-col>
+        </v-row>
     </v-card>
 </template>
 

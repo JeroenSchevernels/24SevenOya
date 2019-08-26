@@ -20,30 +20,33 @@
           </span>
         </v-card-text>
       </v-col>
-      <v-col sm="12">
-        <div column class="text-center">
-          <v-chip
-            pill
-            v-for="agent in supportOnline"
-            v-bind:class="agent.status"
-            :key="agent.id"
-            @click="agent.details = !agent.details"
-          >
-            <v-avatar left v-if="agent.avatar != ''">
-              <img :src="agent.avatar">
-            </v-avatar>
-            {{ agent.name }} : {{ agent.outgoingCalls + agent.incomingCalls }}
-            <span
-              v-if="agent.details"
-              class="grey--text text--darken-2"
+      <v-col sm="12" align-self="center">
+        <v-row justify="center" align="center">
+          <v-col sm="9" align="center" justify="space-between">
+            <v-chip 
+              style="margin:3px"
+              pill
+              v-for="agent in supportOnline"
+              v-bind:class="agent.status"
+              :key="agent.id"
+              @click="agent.details = !agent.details"
             >
-              <v-icon small>call_received</v-icon>
-              {{agent.incomingCalls}}
-              <v-icon small>call_made</v-icon>
-              {{agent.outgoingCalls}}
-            </span>
-          </v-chip>
-        </div>
+              <v-avatar left v-if="agent.avatar != ''">
+                <img :src="agent.avatar">
+              </v-avatar>
+              {{ agent.name }} : {{ agent.outgoingCalls + agent.incomingCalls }}
+              <span
+                v-if="agent.details"
+                class="grey--text text--darken-2"
+              >
+                <v-icon small>call_received</v-icon>
+                {{agent.incomingCalls}}
+                <v-icon small>call_made</v-icon>
+                {{agent.outgoingCalls}}
+              </span>
+            </v-chip>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
   </v-card>

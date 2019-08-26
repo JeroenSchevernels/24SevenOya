@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <v-app :dark.sync="dark">
       <title>{{documentTitle}}</title>
+    <v-app :dark.sync="dark">
       <v-navigation-drawer app dark>
         <v-layout column fill-height>
           <v-list>
@@ -56,9 +56,7 @@
 </template>
 
 <script>
-  import {
-    mapGetters
-  } from "vuex";
+  import { mapGetters } from "vuex";
 
   export default {
     name: "app",
