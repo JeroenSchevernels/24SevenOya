@@ -20,7 +20,9 @@
             <tr v-for="item in items" :key="item.id">
               <td>{{item.time}}</td>
               <td>{{item.number}}</td>
-              <td>{{item.name}}</td>
+              <td v-if="item.name < 25">{{item.name}}</td>
+              <td>{{item.name.substring(0, 20) + '..'}}</td>
+
               <td>{{item.answered}}</td>
               <!-- <td>{{item.timeTaken}}</td> -->
             </tr>

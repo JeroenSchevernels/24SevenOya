@@ -1,13 +1,46 @@
 <template>
   <div class="changelog">
-    <v-timeline align-top dense dark>
-      <v-timeline-item>
+    <v-timeline dense dark>
+      <!-- minor change
+        <v-timeline-item small>
         <v-card>
-          <v-card-title>v.46</v-card-title>
-          <v-card-text>Gray color on the text for waiting and caller info is corrected. Document title is working as before. Space aroud the agent chips</v-card-text>
+          <v-card-title>Version number</v-card-title>
+          <v-card-text>
+            Description
+          </v-card-text>
         </v-card>
       </v-timeline-item>
+
+      bigger gange
+      <v-timeline-item large>
+        <v-card>
+          <v-card-title>Version number</v-card-title>
+          <v-card-text>
+            Description
+          </v-card-text>
+        </v-card>
+      </v-timeline-item> 
+      
+      -->
       <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.47</v-card-title>
+          <v-card-text>
+            Max name length in the call log.
+          </v-card-text>
+        </v-card>
+      </v-timeline-item>
+
+      <v-timeline-item small>
+        <v-card>
+          <v-card-title>v0.46</v-card-title>
+          <v-card-text>
+            Gray color on the text for waiting and caller info is corrected. Document title is working as before. Space aroud the agent chips
+          </v-card-text>
+        </v-card>
+      </v-timeline-item>
+      
+      <v-timeline-item large>
         <v-card>
           <v-card-title>v0.45</v-card-title>
           <v-card-text>New design and trying out new layout</v-card-text>
