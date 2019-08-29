@@ -216,11 +216,11 @@
                       }
                       // all calls
                       // if (msg.data.userId == self.$store.currentUser.id) {
-                      info.number = msg.data.callerId.number;
-                      // info.userid = msg.data.userId
+                        info.number = msg.data.callerId.number;
+                        // info.userid = msg.data.userId
 
-                      self.$store.commit("updateCaller", info);
-                      self.updateCall(self, info, msg);
+                        self.$store.commit("updateCaller", info); // caller Info
+                        self.updateCall(self, info, msg); // call log
                       // }
                     });
                   } else if (msg.data.event == "hangup") {

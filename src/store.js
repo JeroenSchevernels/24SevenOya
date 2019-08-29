@@ -57,7 +57,7 @@ export default new Vuex.Store({
   },
   getters: {
     supportOnline: state => {
-      return state.support.filter(agent => agent.status != "UNAVAILABLE" /* && agent.incomingCalls > 0*/ ) // kun vise de som har aktivt tatt en tlf i dag.
+      return state.support.filter(agent => agent.status != "UNAVAILABLE" || agent.incomingCalls > 0) // viser antallsamtaler som bruker tok etter at bruker har logget av.
     },
     documentTitle: state => {
       return 'Wait: ' + state.callsWaiting + ' Busy: ' + state.agentsBusy + '/' + state.agentsOnline
