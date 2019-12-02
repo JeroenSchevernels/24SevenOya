@@ -24,6 +24,15 @@
       -->
       <v-timeline-item small>
         <v-card>
+          <v-card-title>v0.48</v-card-title>
+          <v-card-text>
+            Bugfix
+          </v-card-text>
+        </v-card>
+      </v-timeline-item>
+
+      <v-timeline-item small>
+        <v-card>
           <v-card-title>v0.47</v-card-title>
           <v-card-text>
             Max name length in the call log.

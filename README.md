@@ -34,6 +34,7 @@ FIX:
 *   Calllog
 *   Oyatel API
 *   agents space between // css not sure if best approach
+*   Hold caller info during the call
 
 TODO:
 **********

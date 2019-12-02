@@ -215,11 +215,13 @@
                         info.country = data.location;
                       }
                       // all calls
-                      // if (msg.data.userId == self.$store.currentUser.id) {
-                        info.number = msg.data.callerId.number;
+
+                      info.number = msg.data.callerId.number;
+                      if (msg.data.userId == self.$store.currentUser.id) {
                         // info.userid = msg.data.userId
 
                         self.$store.commit("updateCaller", info); // caller Info
+                      }
                         self.updateCall(self, info, msg); // call log
                       // }
                     });
